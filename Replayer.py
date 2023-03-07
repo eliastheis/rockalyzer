@@ -15,9 +15,10 @@ class Replayer:
         # load json content
         with open(self.file_name, 'r') as f:
             self.json_content = json_load(f)
+        self.object_lookup = self.json_content['objects']
         
         # prepare game object
-        self.game = Game()
+        self.game = Game(self.object_lookup)
     
         # print simple header
         self.print_sime_stats()
@@ -85,8 +86,17 @@ class Replayer:
             print(f' {elapsed_time // 60:02.0f}:{elapsed_time % 60:02.0f} {description}' + ENDC)
             
 
-    def replay(self):
-        pass
+    def replay(self, render=True):
+        
+        frames = self.json_content['network_frames']['frames']
+        for i, frame in enumerate(frames):
+
+            # update game
+            self.game.update(i, frame)
+
+            # render game
+            if render:
+                self.game.render()
 
 
 
