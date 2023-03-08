@@ -18,7 +18,7 @@ class Replayer:
         self.object_lookup = self.json_content['objects']
         
         # prepare game object
-        self.game = Game(self.object_lookup)
+        self.game = Game(self.object_lookup, self.json_content['debug_info'])
     
         # print simple header
         self.print_sime_stats()
