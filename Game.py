@@ -33,12 +33,12 @@ class Game:
         # updated actors
         self.update_actors(frame['updated_actors'], frame_index)
 
-        if frame_index == 1800:
+        '''if frame_index == 1800:
             # dump actors in json file
             with open('actors.json', 'w') as f:
                 json_dump(self.actors, f, indent=4)
             print(OKBLUE + 'Dumped actors in actors.json' + ENDC)
-            exit(0)
+            exit(0)'''
         
 
     
@@ -61,6 +61,9 @@ class Game:
 
             # add list of super-object_ids
             actor['super_ids'] = []
+
+            # add readable object_name
+            actor['object_name'] = self.object_lookup[object_id]
 
             match object_id:
 
@@ -113,6 +116,30 @@ class Game:
                 case 28: # TAGame.CarComponent_Boost_TA:ReplicatedBoostAmount
                     self.actors[actor_id]['boost'] = actor['attribute']['Byte']
                 
+                case 48: # TAGame.GameEvent_TA:ReplicatedRoundCountDownNumber
+                    self.actors[actor_id]['round_countdown'] = actor['attribute']['Int']
+                
+                case 51: # TAGame.GameEvent_TA:ReplicatedGameStateTimeRemaining
+                    self.actors[actor_id]['time_remaining'] = actor['attribute']['Int']
+                
+                case 52: # TAGame.GameEvent_TA:ReplicatedStateName
+                    self.actors[actor_id]['stateName'] = actor['attribute']['Int']
+                
+                case 55: # TAGame.GameEvent_TA:BotSkill
+                    self.actors[actor_id]['bot_skill'] = actor['attribute']['Int']
+                
+                case 58: # TAGame.GameEvent_TA:bHasLeaveMatchPenalty
+                    self.actors[actor_id]['has_leave_match_penalty'] = actor['attribute']['Boolean']
+                
+                case 64: # TAGame.GameEvent_Team_TA:MaxTeamSize
+                    self.actors[actor_id]['max_team_size'] = actor['attribute']['Int']
+                
+                case 68: # TAGame.GameEvent_Soccar_TA:RoundNum
+                    self.actors[actor_id]['current_round'] = actor['attribute']['Int']
+                
+                case 84: # TAGame.GameEvent_Soccar_TA:bBallHasBeenHit
+                    self.actors[actor_id]['ball_has_been_hit'] = actor['attribute']['Boolean']
+                
                 case 86: # TAGame.GameEvent_Soccar_TA:SecondsRemaining
                     self.actors[actor_id]['seconds_remaining'] = actor['attribute']['Int']
                 
@@ -131,6 +158,10 @@ class Game:
                 case 127: # TAGame.Vehicle_TA:bDriving
                     self.actors[actor_id]['driving'] = actor['attribute']['Boolean']
                 
+                case 132: # TAGame.Car_TA:RumblePickups
+                    # IGNORE Rumble stuff
+                    pass
+                
                 case 138: # TAGame.Car_TA:TeamPaint
                     self.actors[actor_id]['team_paint'] = actor['attribute']['TeamPaint']
                 
@@ -145,6 +176,9 @@ class Game:
                 
                 case 153: # TAGame.CameraSettingsActor_TA:bUsingSwivel
                     self.actors[actor_id]['using_swivel'] = actor['attribute']['Boolean']
+                
+                case 155: # TAGame.CameraSettingsActor_TA:bUsingBehindView
+                    self.actors[actor_id]['using_behind_view'] = actor['attribute']['Boolean']
                 
                 case 157: # TAGame.CameraSettingsActor_TA:ProfileSettings
                     self.actors[actor_id]['camera_settings'] = actor['attribute']['CamSettings']
@@ -234,6 +268,9 @@ class Game:
 
                 case 307: # ProjectX.GRI_X:Reservations
                     self.actors[actor_id]['reservation'] = actor['attribute']['Reservation']
+                
+                case 308: # ProjectX.GRI_X:ReplicatedServerRegion
+                    self.actors[actor_id]['region'] = actor['attribute']['String']
 
                 case 310: # ProjectX.GRI_X:ReplicatedGamePlaylist
                     self.actors[actor_id]['game_playlist'] = actor['attribute']['Int']
@@ -247,12 +284,12 @@ class Game:
             
                 
                 case _:
-
                     pass
-
-                    
+                    '''
                     # this prints any other action that is not handled above
                     print(OKCYAN + f'Update Actor {actor_id} ({object_name} ({actor["object_id"]}))' + ENDC)
                     pprint(self.actors[actor_id])
                     print()
                     pprint(actor['attribute'])
+                    other_actor_id = actor['attribute']['ActiveActor']['actor']
+                    #pprint(self.actors[other_actor_id])'''
