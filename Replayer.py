@@ -16,9 +16,10 @@ class Replayer:
         with open(self.file_name, 'r') as f:
             self.json_content = json_load(f)
         self.object_lookup = self.json_content['objects']
+        self.name_lookup = self.json_content['names']
         
         # prepare game object
-        self.game = Game(self.object_lookup, self.json_content['debug_info'])
+        self.game = Game(self.object_lookup, self.name_lookup, self.json_content['debug_info'])
     
         # print simple header
         self.print_sime_stats()
@@ -35,7 +36,7 @@ class Replayer:
 
         # GENERAL STATS
         print(HEADER + f'\n=== {replay_name} ===' + ENDC)
-        print(OKGREEN + f' {team_size}v{team_size} on {date}' + ENDC)
+        print(OKGREEN + f' {team_size}v{team_size} on {date} ({len(self.json_content["network_frames"]["frames"])} frames)' + ENDC)
 
 
         # PLAYER STATS
@@ -75,7 +76,7 @@ class Replayer:
 
             frame = tick_mark['frame']
             description = tick_mark['description']
-            elapsed_time = frame / fps
+            elapsed_time = self.json_content['network_frames']['frames'][frame]['time']
             team = 0 if 'Team0' in description else 1
             description = description.replace('Team0', '').replace('Team1', '')
 

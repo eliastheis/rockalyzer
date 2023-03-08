@@ -4,8 +4,9 @@ from json import dump as json_dump
 
 class Game:
 
-    def __init__(self, object_lookup, debug_info):
+    def __init__(self, object_lookup, name_lookup, debug_info):
         self.object_lookup = object_lookup
+        self.name_lookup = name_lookup
         self.debug_info = debug_info
         self.time = 0.0
         self.current_fps = 0.0
@@ -39,18 +40,42 @@ class Game:
                 json_dump(self.actors, f, indent=4)
             print(OKBLUE + 'Dumped actors in actors.json' + ENDC)
             exit(0)'''
+    
+        if frame_index == 1800:
+            for car_id in self.get_actor_ids_of_cars():
+                pprint(self.print_full_actor(car_id))
+            exit()
         
 
     
 
     def render(self):
         pass
+
+    def get_actor_ids_of_cars(self):
+        return [actor_id for actor_id, actor in self.actors.items() if actor['object_name'] == 'Archetypes.Car.Car_Default']
+
+    
+    def print_full_actor(self, main_actor_id):
+
+        if self.actors[main_actor_id]['team'] == 0:
+            print(OKBLUE + f'\nTEAM BLUE {main_actor_id}' + ENDC)
+        else:
+            print(OKRED + f'\nTEAM ORANGE {main_actor_id}' + ENDC)
+        info = {'_Car': self.actors[main_actor_id]}
+
+        # find all children
+        for actor_id, actor in self.actors.items():
+            if main_actor_id in actor['parrent_ids']:
+                info[actor['object_name'].split('.')[-1].split('_')[-1]] = actor
+
+        pprint(info)
     
 
     def delete_actors(self, actors):
         for actor in actors:
             actor_id = actor
-            # TODO: handle super-objects
+            # TODO: handle parrent-objects
             del self.actors[actor_id]
 
 
@@ -59,11 +84,12 @@ class Game:
             actor_id = actor['actor_id']
             object_id = actor['object_id']
 
-            # add list of super-object_ids
-            actor['super_ids'] = []
+            # add list of parrent-object_ids
+            actor['parrent_ids'] = []
 
             # add readable object_name
             actor['object_name'] = self.object_lookup[object_id]
+            actor['name_id_name'] = self.name_lookup[actor['name_id']]
 
             match object_id:
 
@@ -71,7 +97,7 @@ class Game:
 
                     actor['frames_with_event'] = []
 
-                case 143 | 264 | 285: # Archetypes.Car.Car_Default
+                case 41 | 43 | 47 | 143 | 264 | 285 | 288 | 291: # Archetypes.Car.Car_Default
                     # we take the position and rotation from the initial_trajectory and add it to the actor
                     initial_trajectory = actor['initial_trajectory']
                     actor = actor | initial_trajectory
@@ -103,12 +129,12 @@ class Game:
                     print(self.object_lookup[correspondig_id])
                     print(OKGREEN, ' BASE:' + ENDC)
                     pprint(self.actors[actor_id])
-                    print(OKGREEN, ' SUPER:' + ENDC)
+                    print(OKGREEN, ' parrent:' + ENDC)
                     pprint(self.actors[correspondig_id])
                     print(OKGREEN, ' ACTOR:' + ENDC)
                     pprint(actor)'''
-                    # add actor_id to list of super-objects
-                    self.actors[actor_id]['super_ids'].append(actor['attribute']['ActiveActor']['actor'])
+                    # add actor_id to list of parrent-objects
+                    self.actors[actor_id]['parrent_ids'].append(actor['attribute']['ActiveActor']['actor'])
                     
                 case 24: # TAGame.CarComponent_TA:ReplicatedActive
                     self.actors[actor_id]['active'] = actor['attribute']['Byte']
@@ -164,6 +190,7 @@ class Game:
                 
                 case 138: # TAGame.Car_TA:TeamPaint
                     self.actors[actor_id]['team_paint'] = actor['attribute']['TeamPaint']
+                    self.actors[actor_id]['team'] = actor['attribute']['TeamPaint']['team']
                 
                 case 148: # TAGame.CameraSettingsActor_TA:CameraYaw
                     self.actors[actor_id]['camera_yaw'] = actor['attribute']['Byte']
