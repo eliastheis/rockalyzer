@@ -8,10 +8,11 @@ from Action import Action
 
 class Game:
 
-    def __init__(self, object_lookup, name_lookup, debug_info):
+    def __init__(self, object_lookup, name_lookup, debug_info, render):
         self.object_lookup = object_lookup
         self.name_lookup = name_lookup
         self.debug_info = debug_info
+        self.render = render
         self.time = 0.0
         self.current_fps = 0.0
         self.actors = {}
@@ -78,7 +79,8 @@ class Game:
 
 
     def render(self):
-        
+        if not self.render:
+            return
         plt.clf()
         players = self.get_players()
         for player in players:

@@ -9,9 +9,10 @@ from Action import Action
 
 class Replayer:
 
-    def __init__(self, file_name):
+    def __init__(self, file_name, render=True):
 
         self.file_name = file_name
+        self.render = render
         print(HEADER + f'[+] Start Replaying "{self.file_name}"' + ENDC)
 
         # load json content
@@ -21,7 +22,7 @@ class Replayer:
         self.name_lookup = self.json_content['names']
 
         # prepare game object
-        self.game = Game(self.object_lookup, self.name_lookup, self.json_content['debug_info'])
+        self.game = Game(self.object_lookup, self.name_lookup, self.json_content['debug_info'], self.render)
     
         # print simple header
         self.print_sime_stats()
@@ -92,7 +93,7 @@ class Replayer:
             print(f' {elapsed_time // 60:02.0f}:{elapsed_time % 60:02.0f} {description}' + ENDC)
             
 
-    def replay(self, render=True):
+    def replay(self):
         
         frames = self.json_content['network_frames']['frames']
         for i, frame in enumerate(frames):
@@ -101,13 +102,12 @@ class Replayer:
             self.game.update(i, frame)
 
             # render game
-            if render:
-                self.game.render()
+            self.game.render()
         
         print(HEADER + f'[+] Finished Replaying "{self.file_name}"' + ENDC)
 
 
 if __name__ == '__main__':
-    replayer = Replayer('replays/replay.json')
+    replayer = Replayer('replays/replay.json', render=True)
     #replayer = Replayer('replays/map.replay.json')
     replayer.replay()
