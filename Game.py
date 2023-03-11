@@ -44,7 +44,7 @@ class Game:
 
         '''if frame_index == 1800:
             # dump actors in json file
-            with open('actors_new.json', 'w') as f:
+            with open('json_dumps/actors_new.json', 'w') as f:
                 json_dump(self.actors, f, indent=4)
             print(OKBLUE + 'Dumped actors in actors.json' + ENDC)
             exit(0)'''
@@ -70,7 +70,7 @@ class Game:
                 print(FAIL + 'More than one car found for player' + ENDC)
                 print(FAIL + 'player: ' + str(player) + ENDC)
                 print(FAIL + 'cars: ' + str(car) + ENDC)
-                with open('actors_error.json', 'w') as f:
+                with open('json_dumps/actors_error.json', 'w') as f:
                     json_dump(self.actors, f, indent=4)
                     print(OKBLUE + 'Dumped actors in actors.json' + ENDC)
                 exit(1)
