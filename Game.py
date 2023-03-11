@@ -1,7 +1,9 @@
 from pprint import pprint
-from console_colors import *
 from json import dump as json_dump
 from matplotlib import pyplot as plt
+
+from console_colors import *
+from Action import Action
 
 
 class Game:
@@ -13,6 +15,7 @@ class Game:
         self.time = 0.0
         self.current_fps = 0.0
         self.actors = {}
+        plt.ion()
 
 
     def update(self, frame_index, frame):
@@ -38,14 +41,46 @@ class Game:
 
         '''if frame_index == 1800:
             # dump actors in json file
-            with open('actors.json', 'w') as f:
+            with open('actors_new.json', 'w') as f:
                 json_dump(self.actors, f, indent=4)
             print(OKBLUE + 'Dumped actors in actors.json' + ENDC)
             exit(0)'''
     
 
+    def get_players(self):
+
+        ret = []
+
+        # get all actor_ids from objects with object_id 264
+        players = [actor_id for actor_id, actor in self.actors.items() if actor['object_id'] == Action.TAGame_Default__PRI_TA]
+
+        for player in players:
+            
+            # get all children of the player (car)
+            car = [actor_id for actor_id, actor in self.actors.items() if player in actor['parent_ids'] and actor['object_id'] == Action.Archetypes_Car_Car_Default]
+            if len(car) == 0:
+                pass
+            elif len(car) == 1:
+                car = car[0]
+                ret.append((player, car))
+            else:
+                print(FAIL + 'More than one car found for player' + ENDC)
+                print(FAIL + 'player: ' + str(player) + ENDC)
+                print(FAIL + 'cars: ' + str(car) + ENDC)
+                exit(1)
+        return ret
+
     def render(self):
-        pass
+        
+        plt.clf()
+        players = self.get_players()
+        for player in players:
+            player_name = self.actors[player[0]]['player_name']
+            x = self.actors[player[1]]['location']['x']
+            y = self.actors[player[1]]['location']['y']
+            plt.scatter(x, y, label=player_name)
+        plt.legend()
+        plt.pause(0.0001)
 
 
     def delete_actors(self, actors):
@@ -88,18 +123,15 @@ class Game:
             actor_id = actor['actor_id']
             object_name = self.object_lookup[actor['object_id']]
 
-
             match actor['object_id']:
 
-                
-
-                case 16: # Engine.Actor:RemoteRole
+                case Action.Engine_Actor_RemoteRole:
                     self.actors[actor_id]['remote_role'] = actor['attribute']['Enum']
                 
-                case 18: # Engine.Actor:DrawScale
+                case Action.Engine_Actor_DrawScale:
                     self.actors[actor_id]['draw_scale'] = actor['attribute']['Float']
 
-                case 23: # TAGame.CarComponent_TA:Vehicle
+                case Action.TAGame_CarComponent_TA_Vehicle:
                     '''print(WARNING, self.object_lookup[self.actors[actor_id]['object_id']], end=' --> ')
                     correspondig_id = actor['attribute']['ActiveActor']['actor']
                     print(self.object_lookup[correspondig_id])
@@ -112,40 +144,40 @@ class Game:
                     # add actor_id to list of parent-objects
                     self.actors[actor_id]['parent_ids'].append(actor['attribute']['ActiveActor']['actor'])
                     
-                case 24: # TAGame.CarComponent_TA:ReplicatedActive
+                case Action.TAGame_CarComponent_TA_ReplicatedActive:
                     self.actors[actor_id]['active'] = actor['attribute']['Byte']
 
-                case 28: # TAGame.CarComponent_Boost_TA:ReplicatedBoostAmount
+                case Action.TAGame_CarComponent_Boost_TA_ReplicatedBoostAmount:
                     self.actors[actor_id]['boost'] = actor['attribute']['Byte']
                 
-                case 48: # TAGame.GameEvent_TA:ReplicatedRoundCountDownNumber
+                case Action.TAGame_GameEvent_TA_ReplicatedRoundCountDownNumber:
                     self.actors[actor_id]['round_countdown'] = actor['attribute']['Int']
                 
-                case 51: # TAGame.GameEvent_TA:ReplicatedGameStateTimeRemaining
+                case Action.TAGame_GameEvent_TA_ReplicatedGameStateTimeRemaining:
                     self.actors[actor_id]['time_remaining'] = actor['attribute']['Int']
                 
-                case 52: # TAGame.GameEvent_TA:ReplicatedStateName
+                case Action.TAGame_GameEvent_TA_ReplicatedStateName:
                     self.actors[actor_id]['stateName'] = actor['attribute']['Int']
                 
-                case 55: # TAGame.GameEvent_TA:BotSkill
+                case Action.TAGame_GameEvent_TA_BotSkill:
                     self.actors[actor_id]['bot_skill'] = actor['attribute']['Int']
                 
-                case 58: # TAGame.GameEvent_TA:bHasLeaveMatchPenalty
+                case Action.TAGame_GameEvent_TA_bHasLeaveMatchPenalty:
                     self.actors[actor_id]['has_leave_match_penalty'] = actor['attribute']['Boolean']
                 
-                case 64: # TAGame.GameEvent_Team_TA:MaxTeamSize
+                case Action.TAGame_GameEvent_Team_TA_MaxTeamSize:
                     self.actors[actor_id]['max_team_size'] = actor['attribute']['Int']
                 
-                case 68: # TAGame.GameEvent_Soccar_TA:RoundNum
+                case Action.TAGame_GameEvent_Soccar_TA_RoundNum:
                     self.actors[actor_id]['current_round'] = actor['attribute']['Int']
                 
-                case 84: # TAGame.GameEvent_Soccar_TA:bBallHasBeenHit
+                case Action.TAGame_GameEvent_Soccar_TA_bBallHasBeenHit:
                     self.actors[actor_id]['ball_has_been_hit'] = actor['attribute']['Boolean']
                 
-                case 86: # TAGame.GameEvent_Soccar_TA:SecondsRemaining
+                case Action.TAGame_GameEvent_Soccar_TA_SecondsRemaining:
                     self.actors[actor_id]['seconds_remaining'] = actor['attribute']['Int']
                 
-                case 95: # Engine.Pawn:PlayerReplicationInfo
+                case Action.Engine_Pawn_PlayerReplicationInfo:
                     self.actors[actor_id]['parent_ids'].append(actor['attribute']['ActiveActor']['actor'])
                     '''print(OKCYAN + f'Update Actor {actor_id} ({object_name} ({actor["object_id"]}))' + ENDC)
                     pprint(self.actors[actor_id])
@@ -155,51 +187,51 @@ class Game:
                     #pprint(self.actors[other_actor_id])
                     exit()'''
                 
-                case 116: # TAGame.RBActor_TA:ReplicatedRBState (ReplicatedRigidBodyState)
+                case Action.TAGame_RBActor_TA_ReplicatedRBState:
                     self.actors[actor_id].update(actor['attribute']['RigidBody'])
 
-                case 123: # TAGame.Vehicle_TA:ReplicatedSteer
+                case Action.TAGame_Vehicle_TA_ReplicatedSteer:
                     self.actors[actor_id]['steer'] = actor['attribute']['Byte']
                 
-                case 124: # TAGame.Vehicle_TA:ReplicatedThrottle
+                case Action.TAGame_Vehicle_TA_ReplicatedThrottle:
                     self.actors[actor_id]['throttle'] = actor['attribute']['Byte']
                 
-                case 126: # TAGame.Vehicle_TA:bReplicatedHandbrake
+                case Action.TAGame_Vehicle_TA_bReplicatedHandbrake:
                     self.actors[actor_id]['handbrake'] = actor['attribute']['Boolean']
                 
-                case 127: # TAGame.Vehicle_TA:bDriving
+                case Action.TAGame_Vehicle_TA_bDriving:
                     self.actors[actor_id]['driving'] = actor['attribute']['Boolean']
                 
-                case 132: # TAGame.Car_TA:RumblePickups
+                case Action.TAGame_Car_TA_RumblePickups:
                     # IGNORE Rumble stuff
                     pass
-                
-                case 138: # TAGame.Car_TA:TeamPaint
+            
+                case Action.TAGame_Car_TA_TeamPaint:
                     self.actors[actor_id]['team_paint'] = actor['attribute']['TeamPaint']
                     self.actors[actor_id]['team'] = actor['attribute']['TeamPaint']['team']
                 
-                case 148: # TAGame.CameraSettingsActor_TA:CameraYaw
+                case Action.TAGame_CameraSettingsActor_TA_CameraYaw:
                     self.actors[actor_id]['camera_yaw'] = actor['attribute']['Byte']
                 
-                case 149: # TAGame.CameraSettingsActor_TA:CameraPitch
+                case Action.TAGame_CameraSettingsActor_TA_CameraPitch:
                     self.actors[actor_id]['camera_pitch'] = actor['attribute']['Byte']
                 
-                case 152: # TAGame.CameraSettingsActor_TA:bMouseCameraToggleEnabled
+                case Action.TAGame_CameraSettingsActor_TA_bMouseCameraToggleEnabled:
                     self.actors[actor_id]['camera_toggle'] = actor['attribute']['Boolean']
                 
-                case 153: # TAGame.CameraSettingsActor_TA:bUsingSwivel
+                case Action.TAGame_CameraSettingsActor_TA_bUsingSwivel:
                     self.actors[actor_id]['using_swivel'] = actor['attribute']['Boolean']
                 
-                case 155: # TAGame.CameraSettingsActor_TA:bUsingBehindView
+                case Action.TAGame_CameraSettingsActor_TA_bUsingBehindView:
                     self.actors[actor_id]['using_behind_view'] = actor['attribute']['Boolean']
                 
-                case 157: # TAGame.CameraSettingsActor_TA:ProfileSettings
+                case Action.TAGame_CameraSettingsActor_TA_ProfileSettings:
                     self.actors[actor_id]['camera_settings'] = actor['attribute']['CamSettings']
                 
-                case 156: # TAGame.CameraSettingsActor_TA:bUsingSecondaryCamera
+                case Action.TAGame_CameraSettingsActor_TA_bUsingSecondaryCamera:
                     self.actors[actor_id]['secondary_camera'] = actor['attribute']['Boolean']
                 
-                case 172: # Engine.PlayerReplicationInfo:UniqueId
+                case Action.Engine_PlayerReplicationInfo_UniqueId:
                     self.actors[actor_id]['unique_id'] = actor['attribute']['UniqueId']
                     # check for MMR in debug_info
                     remote_id = self.actors[actor_id]['unique_id']['remote_id']
@@ -218,81 +250,81 @@ class Game:
                         print(WARNING, 'Unknown remote_id type: ' + str(remote_id) + ENDC)
                         exit()
                 
-                case 183: # Engine.PlayerReplicationInfo:Team
+                case Action.Engine_PlayerReplicationInfo_Team:
                     self.actors[actor_id]['team'] = actor['attribute']['ActiveActor']['actor']
                 
-                case 184: # Engine.PlayerReplicationInfo:PlayerID
+                case Action.Engine_PlayerReplicationInfo_PlayerID:
                     self.actors[actor_id]['player_id'] = actor['attribute']['Int']
                 
-                case 185: # Engine.PlayerReplicationInfo:PlayerName
+                case Action.Engine_PlayerReplicationInfo_PlayerName:
                     self.actors[actor_id]['player_name'] = actor['attribute']['String']
                 
-                case 186: # Engine.PlayerReplicationInfo:Ping
+                case Action.Engine_PlayerReplicationInfo_Ping:
                     self.actors[actor_id]['ping'] = actor['attribute']['Byte']
                 
-                case 193: # TAGame.PRI_TA:CurrentVoiceRoom
+                case Action.TAGame_PRI_TA_CurrentVoiceRoom:
                     self.actors[actor_id]['current_voice_room'] = actor['attribute']['String']
                 
-                case 197: # TAGame.PRI_TA:SpectatorShortcut
+                case Action.TAGame_PRI_TA_SpectatorShortcut:
                     self.actors[actor_id]['spectator_shortcut'] = actor['attribute']['Int']
                 
-                case 205: # TAGame.PRI_TA:SteeringSensitivity
+                case Action.TAGame_PRI_TA_SteeringSensitivity:
                     self.actors[actor_id]['steering_sensitivity'] = actor['attribute']['Float']
                 
-                case 207: # TAGame.PRI_TA:Title
+                case Action.TAGame_PRI_TA_Title:
                     self.actors[actor_id]['title'] = actor['attribute']['Int']
                 
-                case 208: # TAGame.PRI_TA:PartyLeader
+                case Action.TAGame_PRI_TA_PartyLeader:
                     self.actors[actor_id]['party_leader_id'] = actor['attribute']['PartyLeader']
                
-                case 214: # TAGame.PRI_TA:ClientLoadoutsOnline
+                case Action.TAGame_PRI_TA_ClientLoadoutsOnline:
                     self.actors[actor_id]['loadout_online'] = actor['attribute']['LoadoutsOnline']
                 
-                case 215: # TAGame.PRI_TA:ClientLoadouts
+                case Action.TAGame_PRI_TA_ClientLoadouts:
                     self.actors[actor_id]['team_loadout'] = actor['attribute']['TeamLoadout']
                 
-                case 218: # TAGame.PRI_TA:ReplicatedGameEvent
+                case Action.TAGame_PRI_TA_ReplicatedGameEvent:
                     other_actor_id = actor['attribute']['ActiveActor']['actor']
                     self.actors[other_actor_id]['frames_with_event'].append(frame_index)
                 
-                case 220: # TAGame.PRI_TA:PlayerHistoryValid
+                case Action.TAGame_PRI_TA_PlayerHistoryValid:
                     self.actors[actor_id]['player_history_valid'] = actor['attribute']['Boolean']
                 
-                case 234: # TAGame.PRI_TA:MatchScore
+                case Action.TAGame_PRI_TA_MatchScore:
                     self.actors[actor_id]['score'] = actor['attribute']['Int']
                 
-                case 273: # TAGame.Ball_TA:HitTeamNum
+                case Action.TAGame_Ball_TA_HitTeamNum:
                     self.actors[actor_id]['hit_team_num'] = actor['attribute']['Byte']
                 
-                case 289: # TAGame.CarComponent_Dodge_TA:DodgeTorque
+                case Action.TAGame_CarComponent_Dodge_TA_DodgeTorque:
                     self.actors[actor_id]['location'] = actor['attribute']['Location']
                 
-                case 293: # Engine.GameReplicationInfo:ServerName
+                case Action.Engine_GameReplicationInfo_ServerName:
                     self.actors[actor_id]['server'] = actor['attribute']['String']
                 
-                case 304: # ProjectX.GRI_X:MatchGuid
+                case Action.ProjectX_GRI_X_MatchGuid:
                     self.actors[actor_id]['match_guid'] = actor['attribute']['String']
                 
-                case 305: # ProjectX.GRI_X:bGameStarted
+                case Action.ProjectX_GRI_X_bGameStarted:
                     self.actors[actor_id]['game_started'] = actor['attribute']['Boolean']
                 
-                case 306: # ProjectX.GRI_X:GameServerID
+                case Action.ProjectX_GRI_X_GameServerID:
                     self.actors[actor_id]['server_id'] = actor['attribute']['String']
 
-                case 307: # ProjectX.GRI_X:Reservations
+                case Action.ProjectX_GRI_X_Reservations:
                     self.actors[actor_id]['reservation'] = actor['attribute']['Reservation']
                 
-                case 308: # ProjectX.GRI_X:ReplicatedServerRegion
+                case Action.ProjectX_GRI_X_ReplicatedServerRegion:
                     self.actors[actor_id]['region'] = actor['attribute']['String']
 
-                case 310: # ProjectX.GRI_X:ReplicatedGamePlaylist
+                case Action.ProjectX_GRI_X_ReplicatedGamePlaylist:
                     self.actors[actor_id]['game_playlist'] = actor['attribute']['Int']
                 
-                case 323: # TAGame.Team_TA:GameEvent
+                case Action.TAGame_Team_TA_GameEvent:
                     other_actor_id = actor['attribute']['ActiveActor']['actor']
                     self.actors[other_actor_id]['frames_with_event'].append(frame_index)
                 
-                case 346: # TAGame.VehiclePickup_TA:NewReplicatedPickupData
+                case Action.TAGame_VehiclePickup_TA_NewReplicatedPickupData:
                     self.actors[actor_id]['current_pickup'] = actor['attribute']['PickupNew'] | {'frame_index': self.time}
             
                 

@@ -4,6 +4,7 @@ from matplotlib import pyplot as plt
 
 from console_colors import *
 from Game import Game
+from Action import Action
 
 
 class Replayer:
@@ -24,6 +25,9 @@ class Replayer:
     
         # print simple header
         self.print_sime_stats()
+
+        # load actions
+        Action.set_values(self.json_content['objects'])
     
 
     def print_sime_stats(self):
@@ -104,4 +108,5 @@ class Replayer:
 
 if __name__ == '__main__':
     replayer = Replayer('replays/replay.json')
+    #replayer = Replayer('replays/map.replay.json')
     replayer.replay()
