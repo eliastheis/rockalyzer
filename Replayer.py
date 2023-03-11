@@ -1,5 +1,6 @@
 from json import load as json_load
 from pprint import pprint
+from matplotlib import pyplot as plt
 
 from console_colors import *
 from Game import Game
@@ -17,7 +18,7 @@ class Replayer:
             self.json_content = json_load(f)
         self.object_lookup = self.json_content['objects']
         self.name_lookup = self.json_content['names']
-        
+
         # prepare game object
         self.game = Game(self.object_lookup, self.name_lookup, self.json_content['debug_info'])
     
@@ -62,10 +63,10 @@ class Replayer:
         tabs = '\t' * (longest_name // 4 + 1)
         print(OKGREEN + f' Team\t\tName\t\tScore\tGoals\tAssists\tSaves\tShots')
         print(OKRED, end='')
-        for player in team0:
+        for player in team1:
             print(f' ORANGE\t\t"{player["name"]}"\t{player["score"]}\t{player["goals"]}\t{player["assists"]}\t{player["saves"]}\t{player["shots"]}')
         print(OKCYAN, end='')
-        for player in team1:
+        for player in team0:
             print(f' BLUE\t\t"{player["name"]}"\t{player["score"]}\t{player["goals"]}\t{player["assists"]}\t{player["saves"]}\t{player["shots"]}')
         print(ENDC, end='')
 
@@ -80,7 +81,7 @@ class Replayer:
             team = 0 if 'Team0' in description else 1
             description = description.replace('Team0', '').replace('Team1', '')
 
-            if team == 0:
+            if team == 1:
                 print(OKRED, end='')
             else:
                 print(OKCYAN, end='')

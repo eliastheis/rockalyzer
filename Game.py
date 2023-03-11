@@ -1,6 +1,8 @@
 from pprint import pprint
 from console_colors import *
 from json import dump as json_dump
+from matplotlib import pyplot as plt
+
 
 class Game:
 
@@ -41,41 +43,15 @@ class Game:
             print(OKBLUE + 'Dumped actors in actors.json' + ENDC)
             exit(0)'''
     
-        if frame_index == 1800:
-            for car_id in self.get_actor_ids_of_cars():
-                pprint(self.print_full_actor(car_id))
-            exit()
-        
-
-    
 
     def render(self):
         pass
 
-    def get_actor_ids_of_cars(self):
-        return [actor_id for actor_id, actor in self.actors.items() if actor['object_name'] == 'Archetypes.Car.Car_Default']
-
-    
-    def print_full_actor(self, main_actor_id):
-
-        if self.actors[main_actor_id]['team'] == 0:
-            print(OKBLUE + f'\nTEAM BLUE {main_actor_id}' + ENDC)
-        else:
-            print(OKRED + f'\nTEAM ORANGE {main_actor_id}' + ENDC)
-        info = {'_Car': self.actors[main_actor_id]}
-
-        # find all children
-        for actor_id, actor in self.actors.items():
-            if main_actor_id in actor['parrent_ids']:
-                info[actor['object_name'].split('.')[-1].split('_')[-1]] = actor
-
-        pprint(info)
-    
 
     def delete_actors(self, actors):
         for actor in actors:
             actor_id = actor
-            # TODO: handle parrent-objects
+            # TODO: handle parent-objects
             del self.actors[actor_id]
 
 
@@ -84,8 +60,8 @@ class Game:
             actor_id = actor['actor_id']
             object_id = actor['object_id']
 
-            # add list of parrent-object_ids
-            actor['parrent_ids'] = []
+            # add list of parent-object_ids
+            actor['parent_ids'] = []
 
             # add readable object_name
             actor['object_name'] = self.object_lookup[object_id]
@@ -129,12 +105,12 @@ class Game:
                     print(self.object_lookup[correspondig_id])
                     print(OKGREEN, ' BASE:' + ENDC)
                     pprint(self.actors[actor_id])
-                    print(OKGREEN, ' parrent:' + ENDC)
+                    print(OKGREEN, ' parent:' + ENDC)
                     pprint(self.actors[correspondig_id])
                     print(OKGREEN, ' ACTOR:' + ENDC)
                     pprint(actor)'''
-                    # add actor_id to list of parrent-objects
-                    self.actors[actor_id]['parrent_ids'].append(actor['attribute']['ActiveActor']['actor'])
+                    # add actor_id to list of parent-objects
+                    self.actors[actor_id]['parent_ids'].append(actor['attribute']['ActiveActor']['actor'])
                     
                 case 24: # TAGame.CarComponent_TA:ReplicatedActive
                     self.actors[actor_id]['active'] = actor['attribute']['Byte']
@@ -168,6 +144,16 @@ class Game:
                 
                 case 86: # TAGame.GameEvent_Soccar_TA:SecondsRemaining
                     self.actors[actor_id]['seconds_remaining'] = actor['attribute']['Int']
+                
+                case 95: # Engine.Pawn:PlayerReplicationInfo
+                    self.actors[actor_id]['parent_ids'].append(actor['attribute']['ActiveActor']['actor'])
+                    '''print(OKCYAN + f'Update Actor {actor_id} ({object_name} ({actor["object_id"]}))' + ENDC)
+                    pprint(self.actors[actor_id])
+                    print()
+                    pprint(actor['attribute'])
+                    other_actor_id = actor['attribute']['ActiveActor']['actor']
+                    #pprint(self.actors[other_actor_id])
+                    exit()'''
                 
                 case 116: # TAGame.RBActor_TA:ReplicatedRBState (ReplicatedRigidBodyState)
                     self.actors[actor_id].update(actor['attribute']['RigidBody'])
@@ -312,8 +298,8 @@ class Game:
                 
                 case _:
                     pass
-                    '''
-                    # this prints any other action that is not handled above
+                    
+                    '''# this prints any other action that is not handled above
                     print(OKCYAN + f'Update Actor {actor_id} ({object_name} ({actor["object_id"]}))' + ENDC)
                     pprint(self.actors[actor_id])
                     print()
