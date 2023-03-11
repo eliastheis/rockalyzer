@@ -179,3 +179,5 @@ class Action:
                     Action.Archetypes_Car_Car_Default = i
                 case 'TAGame.Default__PRI_TA':
                     Action.TAGame_Default__PRI_TA = i
+                case 'Archetypes.GameEvent.GameEvent_Soccar':
+                    Action.Archetypes_GameEvent_GameEvent_Soccar = i

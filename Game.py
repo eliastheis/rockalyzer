@@ -15,6 +15,9 @@ class Game:
         self.time = 0.0
         self.current_fps = 0.0
         self.actors = {}
+        self.max_x = 4085.92
+        self.max_y = 5981.23
+        plt.style.use('dark_background')
         plt.ion()
 
 
@@ -67,6 +70,9 @@ class Game:
                 print(FAIL + 'More than one car found for player' + ENDC)
                 print(FAIL + 'player: ' + str(player) + ENDC)
                 print(FAIL + 'cars: ' + str(car) + ENDC)
+                with open('actors_error.json', 'w') as f:
+                    json_dump(self.actors, f, indent=4)
+                    print(OKBLUE + 'Dumped actors in actors.json' + ENDC)
                 exit(1)
         return ret
 
@@ -79,6 +85,8 @@ class Game:
             x = self.actors[player[1]]['location']['x']
             y = self.actors[player[1]]['location']['y']
             plt.scatter(x, y, label=player_name)
+            plt.scatter([self.max_x, self.max_x, -self.max_x, -self.max_x], [self.max_y, -self.max_y, self.max_y, -self.max_y], color='white')
+        plt.title(round(self.time))
         plt.legend()
         plt.pause(0.0001)
 
@@ -104,7 +112,7 @@ class Game:
 
             match object_id:
 
-                case 91: # Archetypes.GameEvent.GameEvent_Soccar
+                case Action.Archetypes_GameEvent_GameEvent_Soccar:
 
                     actor['frames_with_event'] = []
 

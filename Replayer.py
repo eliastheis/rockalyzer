@@ -103,6 +103,8 @@ class Replayer:
             # render game
             if render:
                 self.game.render()
+        
+        print(HEADER + f'[+] Finished Replaying "{self.file_name}"' + ENDC)
 
 
 
