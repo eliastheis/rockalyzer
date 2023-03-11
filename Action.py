@@ -58,13 +58,11 @@ class Action:
     Archetypes_Car_Car_Default = -1 # car
     TAGame_Default__PRI_TA = -1 # player
 
+
     @staticmethod
     def set_values(objects):
-
         for i, obj in enumerate(objects):
-
             match obj:
-
                 case 'Engine.Actor:RemoteRole':
                     Action.Engine_Actor_RemoteRole = i
                 case 'Engine.Actor:DrawScale':
@@ -181,3 +179,7 @@ class Action:
                     Action.TAGame_Default__PRI_TA = i
                 case 'Archetypes.GameEvent.GameEvent_Soccar':
                     Action.Archetypes_GameEvent_GameEvent_Soccar = i
+                
+                case _:
+                    print(f"Unknown Action: {obj} ({i})")
+                    exit()

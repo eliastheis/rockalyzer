@@ -76,6 +76,7 @@ class Game:
                 exit(1)
         return ret
 
+
     def render(self):
         
         plt.clf()
@@ -122,7 +123,6 @@ class Game:
                     actor = actor | initial_trajectory
                     del actor['initial_trajectory']
                 
-
             self.actors[actor_id] = actor
 
 

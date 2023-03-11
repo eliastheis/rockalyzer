@@ -107,7 +107,6 @@ class Replayer:
         print(HEADER + f'[+] Finished Replaying "{self.file_name}"' + ENDC)
 
 
-
 if __name__ == '__main__':
     replayer = Replayer('replays/replay.json')
     #replayer = Replayer('replays/map.replay.json')
