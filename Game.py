@@ -12,7 +12,7 @@ class Game:
         self.object_lookup = object_lookup
         self.name_lookup = name_lookup
         self.debug_info = debug_info
-        self.render = render
+        self.b_render = render
         self.time = 0.0
         self.current_fps = 0.0
         self.actors = {}
@@ -79,7 +79,7 @@ class Game:
 
 
     def render(self):
-        if not self.render:
+        if not self.b_render:
             return
         plt.clf()
         players = self.get_players()
