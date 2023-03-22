@@ -1,6 +1,7 @@
 from pprint import pprint
 from json import dump as json_dump
 from matplotlib import pyplot as plt
+import numpy as np
 
 from console_colors import *
 from Action import Action
@@ -8,7 +9,8 @@ from Action import Action
 
 class Game:
 
-    def __init__(self, object_lookup, name_lookup, debug_info, render):
+    def __init__(self, num_frames, object_lookup, name_lookup, debug_info, render):
+        self.num_frames = num_frames
         self.object_lookup = object_lookup
         self.name_lookup = name_lookup
         self.debug_info = debug_info
@@ -18,11 +20,16 @@ class Game:
         self.actors = {}
         self.max_x = 4085.92
         self.max_y = 5981.23
+
+        # render stuff
         if self.b_render:
             plt.style.use('dark_background')
             plt.ion()
             # set size of plot
             plt.figure(figsize=(10, 10))
+        
+        # prepare snapshot
+        self.prepare_snapshot()
 
 
     def update(self, frame_index, frame):
@@ -34,8 +41,6 @@ class Game:
 
         # next: handle new_actors, deleted_actors and updated_actors
         # first we handle deleted_actors, because actor_id's are reused
-        #if len(frame['new_actors']) + len(frame['deleted_actors']) + len(frame['updated_actors']) == 0:
-        #    print(OKBLUE + 'No actors in this frame' + ENDC)
 
         # deleted actors
         self.delete_actors(frame['deleted_actors'])
@@ -45,10 +50,58 @@ class Game:
         
         # updated actors
         self.update_actors(frame['updated_actors'], frame_index)
+    
+        # calculate stuff
+        self.calculate_stuff(frame_index)
+
+        # snapshot values
+        self.snapshot_values(frame_index)
 
         #if frame_index == 300:
         #    self.dump_actors()
     
+
+    def calculate_stuff(self, frame_index):
+
+        # get players and cars using self.get_players
+        player_car_pairs = self.get_players()
+        # get ball
+        ball_id = self.get_ball()
+
+
+        # calculate car speed
+        for player, car in player_car_pairs:
+            if 'linear_velocity' in self.actors[car]:
+                linear_velocity = self.actors[car]['linear_velocity'] # 'linear_velocity': {'x': 0.0, 'y': 0.0, 'z': 0.0}
+                if linear_velocity is not None:
+                    speed = (linear_velocity['x'] ** 2 + linear_velocity['y'] ** 2 + linear_velocity['z'] ** 2) ** 0.5
+                    self.actors[car]['speed'] = speed
+            else:
+                self.actors[car]['speed'] = 0.0
+        
+        # calculate ball speed
+        if 'linear_velocity' in self.actors[ball_id]:
+            linear_velocity = self.actors[ball_id]['linear_velocity']
+            if linear_velocity is not None:
+                speed = (linear_velocity['x'] ** 2 + linear_velocity['y'] ** 2 + linear_velocity['z'] ** 2) ** 0.5
+                self.actors[ball_id]['speed'] = speed
+            else:
+                self.actors[ball_id]['speed'] = 0.0
+        else:
+            self.actors[ball_id]['speed'] = 0.0
+
+
+    def prepare_snapshot(self):
+        
+        # prepare arrays for various values
+        self.hist_ball_speed = np.zeros(self.num_frames, dtype=np.float32)
+
+
+    def snapshot_values(self, frame_index):
+        
+        # ball speed
+        self.hist_ball_speed[frame_index] = self.actors[self.get_ball()]['speed']
+
 
     def dump_actors(self):
         with open('json_dumps/actors.json', 'w') as f:
@@ -571,7 +624,9 @@ class Game:
     def get_stats(self):
         stats = {}
         
-        # TODO: gather all stats
+        stats['ball_speed'] = self.hist_ball_speed
+        stats['ball_speed_kmh'] = self.hist_ball_speed / 27.78
+        
 
         return stats
     

@@ -1,6 +1,7 @@
 from json import load as json_load
 from pprint import pprint
 from time import perf_counter
+from matplotlib import pyplot as plt
 
 from console_colors import *
 from Game import Game
@@ -22,7 +23,7 @@ class Replayer:
         self.name_lookup = self.json_content['names']
 
         # prepare game object
-        self.game = Game(self.object_lookup, self.name_lookup, self.json_content['debug_info'], self.render)
+        self.game = Game(len(self.json_content['network_frames']['frames']), self.object_lookup, self.name_lookup, self.json_content['debug_info'], self.render)
     
         # print simple header
         self.print_sime_stats()
@@ -126,3 +127,9 @@ if __name__ == '__main__':
     stats = replayer.get_stats()
     print(HEADER + '\n=== Stats ===' + ENDC)
     pprint(stats)
+
+    # plot stats
+    plt.style.use('dark_background')
+    plt.plot(stats['ball_speed_kmh'])
+    plt.ylabel('Ball Speed [km/h]')
+    plt.show()
