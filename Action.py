@@ -60,6 +60,12 @@ class Action:
     TAGame_PRI_TA_PersistentCamera = -1
     TAGame_CameraSettingsActor_TA_PRI = -1
     TAGame_Ball_TA_GameEvent = -1
+    TAGame_PRI_TA_MatchGoals = -1
+    TAGame_PRI_TA_MatchAssists = -1
+    TAGame_PRI_TA_MatchSaves = -1
+    TAGame_PRI_TA_MatchShots = -1
+    Engine_PlayerReplicationInfo_Score = -1
+    Engine_TeamInfo_Score = -1
 
 
     @staticmethod
@@ -188,3 +194,16 @@ class Action:
                     Action.TAGame_CameraSettingsActor_TA_PRI = i
                 case 'TAGame.Ball_TA:GameEvent':
                     Action.TAGame_Ball_TA_GameEvent = i
+                case 'TAGame.PRI_TA:MatchGoals':
+                    Action.TAGame_PRI_TA_MatchGoals = i
+                case 'TAGame.PRI_TA:MatchAssists':
+                    Action.TAGame_PRI_TA_MatchAssists = i
+                case 'TAGame.PRI_TA:MatchSaves':
+                    Action.TAGame_PRI_TA_MatchSaves = i
+                case 'TAGame.PRI_TA:MatchShots':
+                    Action.TAGame_PRI_TA_MatchShots = i
+                case 'Engine.PlayerReplicationInfo:Score':
+                    Action.Engine_PlayerReplicationInfo_Score = i
+                case 'Engine.TeamInfo:Score':
+                    Action.Engine_TeamInfo_Score = i
+                

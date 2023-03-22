@@ -342,6 +342,27 @@ class Game:
                 
                 case Action.TAGame_Ball_TA_GameEvent:
                     self.actors[actor_id]['parent_ids'].append(actor['attribute']['ActiveActor']['actor'])
+                
+                case Action.TAGame_PRI_TA_MatchGoals:
+                    self.actors[actor_id]['match_goals'] = actor['attribute']['Int']
+                
+                case Action.TAGame_PRI_TA_MatchGoals:
+                    self.actors[actor_id]['match_goals'] = actor['attribute']['Int']
+                
+                case Action.TAGame_PRI_TA_MatchAssists:
+                    self.actors[actor_id]['match_assists'] = actor['attribute']['Int']
+                
+                case Action.TAGame_PRI_TA_MatchSaves:
+                    self.actors[actor_id]['match_saves'] = actor['attribute']['Int']
+                
+                case Action.TAGame_PRI_TA_MatchShots:
+                    self.actors[actor_id]['match_shots'] = actor['attribute']['Int']
+                
+                case Action.Engine_PlayerReplicationInfo_Score:
+                    self.actors[actor_id]['score'] = actor['attribute']['Int']
+                
+                case Action.Engine_TeamInfo_Score:
+                    self.actors[actor_id]['score'] = actor['attribute']['Int']
             
                 
                 case _:
