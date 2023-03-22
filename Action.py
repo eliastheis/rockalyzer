@@ -57,6 +57,8 @@ class Action:
     TAGame_VehiclePickup_TA_NewReplicatedPickupData = -1
     Archetypes_Car_Car_Default = -1 # car
     TAGame_Default__PRI_TA = -1 # player
+    TAGame_PRI_TA_PersistentCamera = -1
+    TAGame_CameraSettingsActor_TA_PRI = -1
 
 
     @staticmethod
@@ -179,3 +181,7 @@ class Action:
                     Action.TAGame_Default__PRI_TA = i
                 case 'Archetypes.GameEvent.GameEvent_Soccar':
                     Action.Archetypes_GameEvent_GameEvent_Soccar = i
+                case 'TAGame.PRI_TA:PersistentCamera':
+                    Action.TAGame_PRI_TA_PersistentCamera = i
+                case 'TAGame.CameraSettingsActor_TA:PRI':
+                    Action.TAGame_CameraSettingsActor_TA_PRI = i

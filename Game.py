@@ -333,6 +333,12 @@ class Game:
                 
                 case Action.TAGame_VehiclePickup_TA_NewReplicatedPickupData:
                     self.actors[actor_id]['current_pickup'] = actor['attribute']['PickupNew'] | {'frame_index': self.time}
+                
+                case Action.TAGame_PRI_TA_PersistentCamera:
+                    self.actors[actor_id]['parent_ids'].append(actor['attribute']['ActiveActor']['actor'])
+                
+                case Action.TAGame_CameraSettingsActor_TA_PRI:
+                    self.actors[actor_id]['parent_ids'].append(actor['attribute']['ActiveActor']['actor'])
             
                 
                 case _:
