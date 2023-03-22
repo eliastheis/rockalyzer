@@ -18,10 +18,11 @@ class Game:
         self.actors = {}
         self.max_x = 4085.92
         self.max_y = 5981.23
-        plt.style.use('dark_background')
-        plt.ion()
-        # set size of plot
-        plt.figure(figsize=(10, 10))
+        if self.b_render:
+            plt.style.use('dark_background')
+            plt.ion()
+            # set size of plot
+            plt.figure(figsize=(10, 10))
 
 
     def update(self, frame_index, frame):
@@ -401,12 +402,13 @@ class Game:
                 case Action.TAGame_VehiclePickup_TA_NewReplicatedPickupData:
                     instigator_id = actor['attribute']['PickupNew']['instigator']
                     if instigator_id is not None: # for whatever reason, instigator_id can be None
-                        if 'boost_pickups' not in self.actors[instigator_id]:
-                            self.actors[instigator_id]['boost_pickups'] = []
-                        picked_up = actor['attribute']['PickupNew']['picked_up']
-                        boost_actor_id = actor['actor_id']
-                        data = {'picked_up': picked_up, 'frame_index': self.time, 'boost_actor_id': boost_actor_id}
-                        self.actors[instigator_id]['boost_pickups'].append(data)
+                        if instigator_id != -1: # for whatever reason, instigator_id can be -1
+                            if 'boost_pickups' not in self.actors[instigator_id]:
+                                self.actors[instigator_id]['boost_pickups'] = []
+                            picked_up = actor['attribute']['PickupNew']['picked_up']
+                            boost_actor_id = actor['actor_id']
+                            data = {'picked_up': picked_up, 'frame_index': self.time, 'boost_actor_id': boost_actor_id}
+                            self.actors[instigator_id]['boost_pickups'].append(data)
 
                 case Action.TAGame_PRI_TA_PersistentCamera:
                     self.actors[actor_id]['parent_ids'].append(actor['attribute']['ActiveActor']['actor'])
