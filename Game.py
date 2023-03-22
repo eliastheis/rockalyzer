@@ -20,6 +20,8 @@ class Game:
         self.max_y = 5981.23
         plt.style.use('dark_background')
         plt.ion()
+        # set size of plot
+        plt.figure(figsize=(10, 10))
 
 
     def update(self, frame_index, frame):
@@ -94,26 +96,40 @@ class Game:
 
     def render_map(self):
         # render bounds
+        WALL_DISTANCE_Y = 5120
+        SIDE_WALL_X = 4096
+        CORNER_SIZE = 1152
+        HALF_GOAL_WIDTH = 893
+        GOAL_DEPTH = 880
+        OUTER_BOUND = 7000
         # team orange
-        plt.plot([4096, 4096], [0, 5120-1152], color='orange') # wall
-        plt.plot([4096, 4096-1152], [5120-1152, 5120], color='orange') # angle
-        plt.plot([4096-1152, 893], [5120, 5120], color='orange') # back wall
-        plt.plot([893, 893], [5120, 5120+880], color='orange') # goal
-        plt.plot([893, -893], [5120+880, 5120+880], color='orange') # goal
-        plt.plot([-893, -893], [5120, 5120+880], color='orange') # goal
-        plt.plot([-4096+1152, -893], [5120, 5120], color='orange') # back wall
-        plt.plot([-4096, -4096+1152], [5120-1152, 5120], color='orange') # angle
-        plt.plot([-4096, -4096], [5120-1152, 0], color='orange') # wall
+        plt.plot([SIDE_WALL_X, SIDE_WALL_X], [0, WALL_DISTANCE_Y-CORNER_SIZE], color='orange') # wall
+        plt.plot([SIDE_WALL_X, SIDE_WALL_X-CORNER_SIZE], [WALL_DISTANCE_Y-CORNER_SIZE, WALL_DISTANCE_Y], color='orange') # angle
+        plt.plot([SIDE_WALL_X-CORNER_SIZE, HALF_GOAL_WIDTH], [WALL_DISTANCE_Y, WALL_DISTANCE_Y], color='orange') # back wall
+        plt.plot([HALF_GOAL_WIDTH, HALF_GOAL_WIDTH], [WALL_DISTANCE_Y, WALL_DISTANCE_Y+GOAL_DEPTH], color='orange') # goal
+        plt.plot([HALF_GOAL_WIDTH, -HALF_GOAL_WIDTH], [WALL_DISTANCE_Y+GOAL_DEPTH, WALL_DISTANCE_Y+GOAL_DEPTH], color='orange') # goal
+        plt.plot([-HALF_GOAL_WIDTH, -HALF_GOAL_WIDTH], [WALL_DISTANCE_Y, WALL_DISTANCE_Y+GOAL_DEPTH], color='orange') # goal
+        plt.plot([-SIDE_WALL_X+CORNER_SIZE, -HALF_GOAL_WIDTH], [WALL_DISTANCE_Y, WALL_DISTANCE_Y], color='orange') # back wall
+        plt.plot([-SIDE_WALL_X, -SIDE_WALL_X+CORNER_SIZE], [WALL_DISTANCE_Y-CORNER_SIZE, WALL_DISTANCE_Y], color='orange') # angle
+        plt.plot([-SIDE_WALL_X, -SIDE_WALL_X], [WALL_DISTANCE_Y-CORNER_SIZE, 0], color='orange') # wall
         # team blue (inverted y)
-        plt.plot([4096, 4096], [0, -5120+1152], color='blue') # wall
-        plt.plot([4096, 4096-1152], [-5120+1152, -5120], color='blue') # angle
-        plt.plot([4096-1152, 893], [-5120, -5120], color='blue') # back wall
-        plt.plot([893, 893], [-5120, -5120-880], color='blue') # goal
-        plt.plot([893, -893], [-5120-880, -5120-880], color='blue') # goal
-        plt.plot([-893, -893], [-5120, -5120-880], color='blue') # goal
-        plt.plot([-4096+1152, -893], [-5120, -5120], color='blue') # back wall
-        plt.plot([-4096, -4096+1152], [-5120+1152, -5120], color='blue') # angle
-        plt.plot([-4096, -4096], [-5120+1152, 0], color='blue') # wall
+        plt.plot([SIDE_WALL_X, SIDE_WALL_X], [0, -WALL_DISTANCE_Y+CORNER_SIZE], color='blue') # wall
+        plt.plot([SIDE_WALL_X, SIDE_WALL_X-CORNER_SIZE], [-WALL_DISTANCE_Y+CORNER_SIZE, -WALL_DISTANCE_Y], color='blue') # angle
+        plt.plot([SIDE_WALL_X-CORNER_SIZE, HALF_GOAL_WIDTH], [-WALL_DISTANCE_Y, -WALL_DISTANCE_Y], color='blue') # back wall
+        plt.plot([HALF_GOAL_WIDTH, HALF_GOAL_WIDTH], [-WALL_DISTANCE_Y, -WALL_DISTANCE_Y-GOAL_DEPTH], color='blue') # goal
+        plt.plot([HALF_GOAL_WIDTH, -HALF_GOAL_WIDTH], [-WALL_DISTANCE_Y-GOAL_DEPTH, -WALL_DISTANCE_Y-GOAL_DEPTH], color='blue') # goal
+        plt.plot([-HALF_GOAL_WIDTH, -HALF_GOAL_WIDTH], [-WALL_DISTANCE_Y, -WALL_DISTANCE_Y-GOAL_DEPTH], color='blue') # goal
+        plt.plot([-SIDE_WALL_X+CORNER_SIZE, -HALF_GOAL_WIDTH], [-WALL_DISTANCE_Y, -WALL_DISTANCE_Y], color='blue') # back wall
+        plt.plot([-SIDE_WALL_X, -SIDE_WALL_X+CORNER_SIZE], [-WALL_DISTANCE_Y+CORNER_SIZE, -WALL_DISTANCE_Y], color='blue') # angle
+        plt.plot([-SIDE_WALL_X, -SIDE_WALL_X], [-WALL_DISTANCE_Y+CORNER_SIZE, 0], color='blue') # wall
+
+        # render middle line
+        plt.plot([SIDE_WALL_X, -SIDE_WALL_X], [0, 0], color='gray')
+
+        # render outer bounds for better visualization
+        plt.scatter([OUTER_BOUND, OUTER_BOUND, -OUTER_BOUND, -OUTER_BOUND],
+                    [OUTER_BOUND, -OUTER_BOUND, OUTER_BOUND, -OUTER_BOUND],
+                    color='white')
         
 
     def render(self):
@@ -132,8 +148,6 @@ class Game:
             x = self.actors[player[1]]['location']['x']
             y = self.actors[player[1]]['location']['y']
             plt.scatter(x, y, label=player_name)
-            plt.scatter([self.max_x, self.max_x, -self.max_x, -self.max_x], [self.max_y, -self.max_y, self.max_y, -self.max_y], color='white')
-
 
         # render ball
         ball = self.get_ball()
