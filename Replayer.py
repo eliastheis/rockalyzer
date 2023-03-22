@@ -110,7 +110,6 @@ class Replayer:
         print(HEADER + f'\n[+] Finished Replaying "{self.file_name}" in {diff:.3f} seconds' + ENDC)
         
     
-
     def get_stats(self):
         return self.game.get_stats()
 

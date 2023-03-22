@@ -125,13 +125,53 @@ class Game:
         plt.plot([-SIDE_WALL_X, -SIDE_WALL_X], [-WALL_DISTANCE_Y+CORNER_SIZE, 0], color='blue') # wall
 
         # render middle line
-        plt.plot([SIDE_WALL_X, -SIDE_WALL_X], [0, 0], color='gray')
+        plt.plot([SIDE_WALL_X, -SIDE_WALL_X], [0, 0], color='gray', linewidth=0.5)
 
         # render outer bounds for better visualization
         plt.scatter([OUTER_BOUND, OUTER_BOUND, -OUTER_BOUND, -OUTER_BOUND],
                     [OUTER_BOUND, -OUTER_BOUND, OUTER_BOUND, -OUTER_BOUND],
-                    color='white')
+                    color='white', s=0.01)
         
+    
+    def render_boosts(self):
+        coords = [  [    0.0, -4240.0, 70.0],
+                    [-1792.0, -4184.0, 70.0],
+                    [ 1792.0, -4184.0, 70.0],
+                    [-3072.0, -4096.0, 73.0],
+                    [ 3072.0, -4096.0, 73.0],
+                    [- 940.0, -3308.0, 70.0],
+                    [  940.0, -3308.0, 70.0],
+                    [    0.0, -2816.0, 70.0],
+                    [-3584.0, -2484.0, 70.0],
+                    [ 3584.0, -2484.0, 70.0],
+                    [-1788.0, -2300.0, 70.0],
+                    [ 1788.0, -2300.0, 70.0],
+                    [-2048.0, -1036.0, 70.0],
+                    [    0.0, -1024.0, 70.0],
+                    [ 2048.0, -1036.0, 70.0],
+                    [-3584.0,     0.0, 73.0],
+                    [-1024.0,     0.0, 70.0],
+                    [ 1024.0,     0.0, 70.0],
+                    [ 3584.0,     0.0, 73.0],
+                    [-2048.0,  1036.0, 70.0],
+                    [    0.0,  1024.0, 70.0],
+                    [ 2048.0,  1036.0, 70.0],
+                    [-1788.0,  2300.0, 70.0],
+                    [ 1788.0,  2300.0, 70.0],
+                    [-3584.0,  2484.0, 70.0],
+                    [ 3584.0,  2484.0, 70.0],
+                    [    0.0,  2816.0, 70.0],
+                    [- 940.0,  3310.0, 70.0],
+                    [  940.0,  3308.0, 70.0],
+                    [-3072.0,  4096.0, 73.0],
+                    [ 3072.0,  4096.0, 73.0],
+                    [-1792.0,  4184.0, 70.0],
+                    [ 1792.0,  4184.0, 70.0],
+                    [    0.0,  4240.0, 70.0]]
+
+        for coord in coords:
+            plt.scatter(coord[0], coord[1], color='yellow', s=0.5)
+
 
     def render(self):
         # check if rendering is enabled
@@ -141,6 +181,9 @@ class Game:
 
         # render map
         self.render_map()
+
+        # render boosts
+        self.render_boosts()
 
         # render players
         players = self.get_players()
