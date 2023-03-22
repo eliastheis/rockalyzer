@@ -1,6 +1,6 @@
 from json import load as json_load
 from pprint import pprint
-from matplotlib import pyplot as plt
+from time import perf_counter
 
 from console_colors import *
 from Game import Game
@@ -94,6 +94,8 @@ class Replayer:
             
 
     def replay(self):
+
+        start_time = perf_counter()
         
         frames = self.json_content['network_frames']['frames']
         for i, frame in enumerate(frames):
@@ -104,10 +106,24 @@ class Replayer:
             # render game
             self.game.render()
         
-        print(HEADER + f'[+] Finished Replaying "{self.file_name}"' + ENDC)
+        diff = perf_counter() - start_time
+        print(HEADER + f'\n[+] Finished Replaying "{self.file_name}" in {diff:.3f} seconds' + ENDC)
+        
+    
+
+    def get_stats(self):
+        return self.game.get_stats()
 
 
 if __name__ == '__main__':
-    replayer = Replayer('replays/replay.json', render=True)
-    #replayer = Replayer('replays/map.replay.json')
+
+    # load replay file
+    replayer = Replayer('replays/replay.json', render=False)
+
+    # replay
     replayer.replay()
+
+    # get and print stats
+    stats = replayer.get_stats()
+    print(HEADER + '\n=== Stats ===' + ENDC)
+    pprint(stats)

@@ -523,3 +523,12 @@ class Game:
                         pprint(self.actors[reference_id])
                     else:
                         print(WARNING + f'Reference {reference_id} (INVALID)' + ENDC)
+
+
+    def get_stats(self):
+        stats = {}
+        
+        # TODO: gather all stats
+
+        return stats
+    
