@@ -107,7 +107,7 @@ class Action:
                     Action.TAGame_Car_TA_RumblePickups = i
                 case 'TAGame.Car_TA:TeamPaint':
                     Action.TAGame_Car_TA_TeamPaint = i
-                case ' TAGame.CameraSettingsActor_TA:CameraYaw':
+                case 'TAGame.CameraSettingsActor_TA:CameraYaw':
                     Action.TAGame_CameraSettingsActor_TA_CameraYaw = i
                 case 'TAGame.CameraSettingsActor_TA:CameraPitch':
                     Action.TAGame_CameraSettingsActor_TA_CameraPitch = i
