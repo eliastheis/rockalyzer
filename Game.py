@@ -68,13 +68,10 @@ class Game:
                 car = car[0]
                 ret.append((player, car))
             else:
-                print(FAIL + 'More than one car found for player' + ENDC)
-                print(FAIL + 'player: ' + str(player) + ENDC)
-                print(FAIL + 'cars: ' + str(car) + ENDC)
-                with open('json_dumps/actors_error.json', 'w') as f:
-                    json_dump(self.actors, f, indent=4)
-                    print(OKBLUE + 'Dumped actors in actors.json' + ENDC)
-                exit(1)
+                # if there are more than one car, the player was probably demoed
+                # the last car is the one that is used
+                car = car[-1]
+                ret.append((player, car))
         return ret
 
 
