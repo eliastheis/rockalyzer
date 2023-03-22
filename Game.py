@@ -75,10 +75,27 @@ class Game:
         return ret
 
 
+    def get_ball(self):
+
+        # get all actor_ids from objects with object_id 264
+        ball = [actor_id for actor_id, actor in self.actors.items() if actor['object_id'] == Action.Archetypes_Ball_Ball_Default]
+
+        if len(ball) == 0:
+            return None
+        elif len(ball) == 1:
+            return ball[0]
+        else:
+            print(WARNING + 'There are more than one ball' + ENDC)
+            return ball[-1]
+
+
     def render(self):
+        # check if rendering is enabled
         if not self.b_render:
             return
         plt.clf()
+
+        # render players
         players = self.get_players()
         for player in players:
             player_name = self.actors[player[0]]['player_name']
@@ -86,6 +103,15 @@ class Game:
             y = self.actors[player[1]]['location']['y']
             plt.scatter(x, y, label=player_name)
             plt.scatter([self.max_x, self.max_x, -self.max_x, -self.max_x], [self.max_y, -self.max_y, self.max_y, -self.max_y], color='white')
+
+
+        # render ball
+        ball = self.get_ball()
+        if ball is not None:
+            x = self.actors[ball]['location']['x']
+            y = self.actors[ball]['location']['y']
+            plt.scatter(x, y, label='ball', color='red')
+
         plt.title(round(self.time))
         plt.legend()
         plt.pause(0.0001)

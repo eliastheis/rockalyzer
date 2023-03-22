@@ -56,6 +56,7 @@ class Action:
     TAGame_Team_TA_GameEvent = -1
     TAGame_VehiclePickup_TA_NewReplicatedPickupData = -1
     Archetypes_Car_Car_Default = -1 # car
+    Archetypes_Ball_Ball_Default = -1 # ball
     TAGame_Default__PRI_TA = -1 # player
     TAGame_PRI_TA_PersistentCamera = -1
     TAGame_CameraSettingsActor_TA_PRI = -1
@@ -194,6 +195,8 @@ class Action:
                     Action.TAGame_VehiclePickup_TA_NewReplicatedPickupData = i
                 case 'Archetypes.Car.Car_Default':
                     Action.Archetypes_Car_Car_Default = i
+                case 'Archetypes.Ball.Ball_Default':
+                    Action.Archetypes_Ball_Ball_Default = i
                 case 'TAGame.Default__PRI_TA':
                     Action.TAGame_Default__PRI_TA = i
                 case 'Archetypes.GameEvent.GameEvent_Soccar':
