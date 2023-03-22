@@ -92,11 +92,38 @@ class Game:
             return ball[-1]
 
 
+    def render_map(self):
+        # render bounds
+        # team orange
+        plt.plot([4096, 4096], [0, 5120-1152], color='orange') # wall
+        plt.plot([4096, 4096-1152], [5120-1152, 5120], color='orange') # angle
+        plt.plot([4096-1152, 893], [5120, 5120], color='orange') # back wall
+        plt.plot([893, 893], [5120, 5120+880], color='orange') # goal
+        plt.plot([893, -893], [5120+880, 5120+880], color='orange') # goal
+        plt.plot([-893, -893], [5120, 5120+880], color='orange') # goal
+        plt.plot([-4096+1152, -893], [5120, 5120], color='orange') # back wall
+        plt.plot([-4096, -4096+1152], [5120-1152, 5120], color='orange') # angle
+        plt.plot([-4096, -4096], [5120-1152, 0], color='orange') # wall
+        # team blue (inverted y)
+        plt.plot([4096, 4096], [0, -5120+1152], color='blue') # wall
+        plt.plot([4096, 4096-1152], [-5120+1152, -5120], color='blue') # angle
+        plt.plot([4096-1152, 893], [-5120, -5120], color='blue') # back wall
+        plt.plot([893, 893], [-5120, -5120-880], color='blue') # goal
+        plt.plot([893, -893], [-5120-880, -5120-880], color='blue') # goal
+        plt.plot([-893, -893], [-5120, -5120-880], color='blue') # goal
+        plt.plot([-4096+1152, -893], [-5120, -5120], color='blue') # back wall
+        plt.plot([-4096, -4096+1152], [-5120+1152, -5120], color='blue') # angle
+        plt.plot([-4096, -4096], [-5120+1152, 0], color='blue') # wall
+        
+
     def render(self):
         # check if rendering is enabled
         if not self.b_render:
             return
         plt.clf()
+
+        # render map
+        self.render_map()
 
         # render players
         players = self.get_players()
