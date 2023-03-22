@@ -59,6 +59,7 @@ class Action:
     TAGame_Default__PRI_TA = -1 # player
     TAGame_PRI_TA_PersistentCamera = -1
     TAGame_CameraSettingsActor_TA_PRI = -1
+    TAGame_Ball_TA_GameEvent = -1
 
 
     @staticmethod
@@ -167,7 +168,7 @@ class Action:
                     Action.ProjectX_GRI_X_GameServerID = i
                 case 'ProjectX.GRI_X:Reservations':
                     Action.ProjectX_GRI_X_Reservations = i
-                case 'rojectX.GRI_X:ReplicatedServerRegion':
+                case 'ProjectX.GRI_X:ReplicatedServerRegion':
                     Action.ProjectX_GRI_X_ReplicatedServerRegion = i
                 case 'ProjectX.GRI_X:ReplicatedGamePlaylist':
                     Action.ProjectX_GRI_X_ReplicatedGamePlaylist = i
@@ -185,3 +186,5 @@ class Action:
                     Action.TAGame_PRI_TA_PersistentCamera = i
                 case 'TAGame.CameraSettingsActor_TA:PRI':
                     Action.TAGame_CameraSettingsActor_TA_PRI = i
+                case 'TAGame.Ball_TA:GameEvent':
+                    Action.TAGame_Ball_TA_GameEvent = i

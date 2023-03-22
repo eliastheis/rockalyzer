@@ -339,6 +339,9 @@ class Game:
                 
                 case Action.TAGame_CameraSettingsActor_TA_PRI:
                     self.actors[actor_id]['parent_ids'].append(actor['attribute']['ActiveActor']['actor'])
+                
+                case Action.TAGame_Ball_TA_GameEvent:
+                    self.actors[actor_id]['parent_ids'].append(actor['attribute']['ActiveActor']['actor'])
             
                 
                 case _:
