@@ -336,12 +336,30 @@ class Game:
             
                 
                 case _:
-                    pass
+
+                    target_id = actor_id
+                    target_object_name = object_name
+                    event_name = self.object_lookup[actor['object_id']]
+                    is_refernce = 'ActiveActor' in actor['attribute']
+                    is_valid_reference = False
+                    reference_id = None
+                    if is_refernce:
+                        reference_id = actor['attribute']['ActiveActor']['actor']
+                        is_valid_reference = reference_id in self.actors
+                        if is_valid_reference:
+                            reference_object_name = self.object_lookup[self.actors[reference_id]['object_id']]
                     
-                    '''# this prints any other action that is not handled above
-                    print(OKCYAN + f'Update Actor {actor_id} ({object_name} ({actor["object_id"]}))' + ENDC)
-                    pprint(self.actors[actor_id])
                     print()
-                    pprint(actor['attribute'])
-                    other_actor_id = actor['attribute']['ActiveActor']['actor']
-                    #pprint(self.actors[other_actor_id])'''
+                    print(OKRED + f'\nUpdate Actor {actor_id} ({target_object_name}) with event {event_name}' + ENDC)
+
+                    print(OKGREEN + f'TARGET ACTOR:' + ENDC)
+                    pprint(self.actors[target_id])
+
+                    print(OKGREEN + f'TARGET EVENT:' + ENDC)
+                    pprint(actor)
+
+                    if is_valid_reference:
+                        print(OKBLUE + f'Reference {reference_id} ({reference_object_name})' + ENDC)
+                        pprint(self.actors[reference_id])
+                    else:
+                        print(WARNING + f'Reference {reference_id} (INVALID)' + ENDC)
