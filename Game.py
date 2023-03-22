@@ -139,17 +139,14 @@ class Game:
             actor['object_name'] = self.object_lookup[object_id]
             actor['name_id_name'] = self.name_lookup[actor['name_id']]
 
-            match object_id:
+            if object_id == Action.Archetypes_GameEvent_GameEvent_Soccar:
+                actor['frames_with_event'] = [] # temporary
 
-                case Action.Archetypes_GameEvent_GameEvent_Soccar:
-
-                    actor['frames_with_event'] = []
-
-                case 41 | 43 | 47 | 143 | 264 | 285 | 288 | 291: # Archetypes.Car.Car_Default
-                    # we take the position and rotation from the initial_trajectory and add it to the actor
-                    initial_trajectory = actor['initial_trajectory']
-                    actor = actor | initial_trajectory
-                    del actor['initial_trajectory']
+            if 'initial_trajectory' in actor:
+                # we take the position and rotation from the initial_trajectory and add it to the actor
+                initial_trajectory = actor['initial_trajectory']
+                actor = actor | initial_trajectory
+                del actor['initial_trajectory']
                 
             self.actors[actor_id] = actor
 
@@ -361,8 +358,15 @@ class Game:
                     self.actors[other_actor_id]['frames_with_event'].append(frame_index)
                 
                 case Action.TAGame_VehiclePickup_TA_NewReplicatedPickupData:
-                    self.actors[actor_id]['current_pickup'] = actor['attribute']['PickupNew'] | {'frame_index': self.time}
-                
+                    instigator_id = actor['attribute']['PickupNew']['instigator']
+                    if instigator_id is not None: # for whatever reason, instigator_id can be None
+                        if 'boost_pickups' not in self.actors[instigator_id]:
+                            self.actors[instigator_id]['boost_pickups'] = []
+                        picked_up = actor['attribute']['PickupNew']['picked_up']
+                        boost_actor_id = actor['actor_id']
+                        data = {'picked_up': picked_up, 'frame_index': self.time, 'boost_actor_id': boost_actor_id}
+                        self.actors[instigator_id]['boost_pickups'].append(data)
+
                 case Action.TAGame_PRI_TA_PersistentCamera:
                     self.actors[actor_id]['parent_ids'].append(actor['attribute']['ActiveActor']['actor'])
                 
