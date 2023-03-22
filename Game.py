@@ -31,8 +31,8 @@ class Game:
 
         # next: handle new_actors, deleted_actors and updated_actors
         # first we handle deleted_actors, because actor_id's are reused
-        if len(frame['new_actors']) + len(frame['deleted_actors']) + len(frame['updated_actors']) == 0:
-            print(OKBLUE + 'No actors in this frame' + ENDC)
+        #if len(frame['new_actors']) + len(frame['deleted_actors']) + len(frame['updated_actors']) == 0:
+        #    print(OKBLUE + 'No actors in this frame' + ENDC)
 
         # deleted actors
         self.delete_actors(frame['deleted_actors'])
@@ -419,6 +419,18 @@ class Game:
                 
                 case Action.TAGame_CarComponent_FlipCar_TA_FlipCarTime:
                     self.actors[actor_id]['flip_car_time'] = actor['attribute']['Float']
+                
+                case Action.TAGame_GameEvent_Soccar_TA_MaxScore:
+                    self.actors[actor_id]['max_score'] = actor['attribute']['Int']
+                
+                case Action.TAGame_Team_TA_ClubColors:
+                    self.actors[actor_id]['club_colors'] = actor['attribute']['ClubColors']
+
+                case Action.TAGame_Car_TA_ClubColors:
+                    self.actors[actor_id]['club_colors'] = actor['attribute']['ClubColors']
+                
+                case Action.ProjectX_GRI_X_ReplicatedGameMutatorIndex:
+                    self.actors[actor_id]['game_mutator_index'] = actor['attribute']['Int']
                 
                 case Action.TAGame_GameEvent_TA_MatchTypeClass:
                     # pretty weird event

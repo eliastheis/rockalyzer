@@ -74,6 +74,11 @@ class Action:
     TAGame_PRI_TA_bReady = -1
     TAGame_PRI_TA_ReplicatedWorstNetQualityBeyondLatency = -1
     TAGame_CarComponent_FlipCar_TA_FlipCarTime = -1
+    TAGame_GameEvent_Soccar_TA_MaxScore = -1
+    TAGame_Team_TA_ClubColors = -1
+    TAGame_Car_TA_ClubColors = -1
+    ProjectX_GRI_X_ReplicatedGameMutatorIndex = -1
+    
     TAGame_GameEvent_TA_MatchTypeClass = -1 # weird event
     Engine_GameReplicationInfo_GameClass = -1 # weird event
     TAGame_GameEvent_Soccar_TA_ReplicatedStatEvent = -1 # weird event
@@ -245,3 +250,11 @@ class Action:
                     Action.Engine_GameReplicationInfo_GameClass = i
                 case 'TAGame.GameEvent_Soccar_TA:ReplicatedStatEvent':
                     Action.TAGame_GameEvent_Soccar_TA_ReplicatedStatEvent = i
+                case 'TAGame.GameEvent_Soccar_TA:MaxScore':
+                    Action.TAGame_GameEvent_Soccar_TA_MaxScore = i
+                case 'TAGame.Team_TA:ClubColors':
+                    Action.TAGame_Team_TA_ClubColors = i
+                case 'TAGame.Car_TA:ClubColors':
+                    Action.TAGame_Car_TA_ClubColors = i
+                case 'ProjectX.GRI_X:ReplicatedGameMutatorIndex':
+                    Action.ProjectX_GRI_X_ReplicatedGameMutatorIndex = i
