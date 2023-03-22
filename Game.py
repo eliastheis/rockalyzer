@@ -43,13 +43,16 @@ class Game:
         # updated actors
         self.update_actors(frame['updated_actors'], frame_index)
 
-        '''if frame_index == 1800:
-            # dump actors in json file
-            with open('json_dumps/actors_new.json', 'w') as f:
-                json_dump(self.actors, f, indent=4)
-            print(OKBLUE + 'Dumped actors in actors.json' + ENDC)
-            exit(0)'''
+        #if frame_index == 300:
+        #    self.dump_actors()
     
+
+    def dump_actors(self):
+        with open('json_dumps/actors.json', 'w') as f:
+            json_dump(self.actors, f, indent=4)
+            print(OKBLUE + 'Dumped actors in actors.json' + ENDC)
+            exit(0)
+
 
     def get_players(self):
 
