@@ -363,6 +363,48 @@ class Game:
                 
                 case Action.Engine_TeamInfo_Score:
                     self.actors[actor_id]['score'] = actor['attribute']['Int']
+                
+                case Action.TAGame_GameEvent_TA_bCanVoteToForfeit:
+                    self.actors[actor_id]['can_vote_to_forfeit'] = actor['attribute']['Boolean']
+                
+                case Action.TAGame_Car_TA_ReplicatedDemolishGoalExplosion:
+                    self.actors[actor_id]['demolish_fx'] = actor['attribute']['DemolishFx']
+                
+                case Action.TAGame_GameEvent_Soccar_TA_ReplicatedScoredOnTeam:
+                    self.actors[actor_id]['scored_on_team'] = actor['attribute']['Byte']
+                
+                case Action.Engine_Actor_bCollideActors:
+                    self.actors[actor_id]['collide_actors'] = actor['attribute']['Boolean']
+                
+                case Action.Engine_Actor_bBlockActors:
+                    self.actors[actor_id]['block_actors'] = actor['attribute']['Boolean']
+                
+                case Action.TAGame_Ball_TA_ReplicatedExplosionDataExtended:
+                    self.actors[actor_id]['extended_explosion'] = actor['attribute']['ExtendedExplosion']
+                
+                case Action.Engine_Actor_bHidden:
+                    self.actors[actor_id]['hidden'] = actor['attribute']['Boolean']
+                
+                case Action.TAGame_PRI_TA_bReady:
+                    self.actors[actor_id]['ready'] = actor['attribute']['Boolean']
+
+                case Action.TAGame_PRI_TA_ReplicatedWorstNetQualityBeyondLatency:
+                    self.actors[actor_id]['worst_net_quality_beyond_latency'] = actor['attribute']['Byte']
+                
+                case Action.TAGame_CarComponent_FlipCar_TA_FlipCarTime:
+                    self.actors[actor_id]['flip_car_time'] = actor['attribute']['Float']
+                
+                case Action.TAGame_GameEvent_TA_MatchTypeClass:
+                    # pretty weird event
+                    pass
+            
+                case Action.Engine_GameReplicationInfo_GameClass:
+                    # pretty weird event
+                    pass
+            
+                case Action.TAGame_GameEvent_Soccar_TA_ReplicatedStatEvent:
+                    # pretty weird event
+                    pass
             
                 
                 case _:

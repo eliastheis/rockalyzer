@@ -66,6 +66,16 @@ class Action:
     TAGame_PRI_TA_MatchShots = -1
     Engine_PlayerReplicationInfo_Score = -1
     Engine_TeamInfo_Score = -1
+    TAGame_GameEvent_TA_bCanVoteToForfeit = -1
+    TAGame_Car_TA_ReplicatedDemolishGoalExplosion = -1
+    TAGame_GameEvent_Soccar_TA_ReplicatedScoredOnTeam = -1
+    Engine_Actor_bHidden = -1
+    TAGame_PRI_TA_bReady = -1
+    TAGame_PRI_TA_ReplicatedWorstNetQualityBeyondLatency = -1
+    TAGame_CarComponent_FlipCar_TA_FlipCarTime = -1
+    TAGame_GameEvent_TA_MatchTypeClass = -1 # weird event
+    Engine_GameReplicationInfo_GameClass = -1 # weird event
+    TAGame_GameEvent_Soccar_TA_ReplicatedStatEvent = -1 # weird event
 
 
     @staticmethod
@@ -206,4 +216,29 @@ class Action:
                     Action.Engine_PlayerReplicationInfo_Score = i
                 case 'Engine.TeamInfo:Score':
                     Action.Engine_TeamInfo_Score = i
-                
+                case 'TAGame.GameEvent_TA:bCanVoteToForfeit':
+                    Action.TAGame_GameEvent_TA_bCanVoteToForfeit = i
+                case 'TAGame.Car_TA:ReplicatedDemolishGoalExplosion':
+                    Action.TAGame_Car_TA_ReplicatedDemolishGoalExplosion = i
+                case 'TAGame.GameEvent_Soccar_TA:ReplicatedScoredOnTeam':
+                    Action.TAGame_GameEvent_Soccar_TA_ReplicatedScoredOnTeam = i
+                case 'Engine.Actor:bCollideActors':
+                    Action.Engine_Actor_bCollideActors = i
+                case 'Engine.Actor:bBlockActors':
+                    Action.Engine_Actor_bBlockActors = i
+                case 'TAGame.Ball_TA:ReplicatedExplosionDataExtended':
+                    Action.TAGame_Ball_TA_ReplicatedExplosionDataExtended = i
+                case 'Engine.Actor:bHidden':
+                    Action.Engine_Actor_bHidden = i
+                case 'TAGame.PRI_TA:bReady':
+                    Action.TAGame_PRI_TA_bReady = i
+                case 'TAGame.PRI_TA:ReplicatedWorstNetQualityBeyondLatency':
+                    Action.TAGame_PRI_TA_ReplicatedWorstNetQualityBeyondLatency = i
+                case 'TAGame.CarComponent_FlipCar_TA:FlipCarTime':
+                    Action.TAGame_CarComponent_FlipCar_TA_FlipCarTime = i
+                case 'TAGame.GameEvent_TA:MatchTypeClass':
+                    Action.TAGame_GameEvent_TA_MatchTypeClass = i
+                case 'Engine.GameReplicationInfo:GameClass':
+                    Action.Engine_GameReplicationInfo_GameClass = i
+                case 'TAGame.GameEvent_Soccar_TA:ReplicatedStatEvent':
+                    Action.TAGame_GameEvent_Soccar_TA_ReplicatedStatEvent = i
