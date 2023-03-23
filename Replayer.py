@@ -132,4 +132,5 @@ if __name__ == '__main__':
     plt.style.use('dark_background')
     plt.plot(stats['ball_speed_kmh'])
     plt.ylabel('Ball Speed [km/h]')
+    plt.xlabel('Frame')
     plt.show()
