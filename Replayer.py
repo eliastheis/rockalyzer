@@ -4,6 +4,7 @@ from time import perf_counter
 from matplotlib import pyplot as plt
 
 from console_colors import *
+from constants import *
 from Game import Game
 from Action import Action
 
@@ -130,7 +131,9 @@ if __name__ == '__main__':
 
     # plot stats
     plt.style.use('dark_background')
-    plt.plot(stats['ball_speed_kmh'])
+
+    # plot ball speed
+    plt.plot(stats['ball_speed'] * UU_TO_KMH_FACTOR)
     plt.ylabel('Ball Speed [km/h]')
     plt.xlabel('Frame')
     plt.show()
