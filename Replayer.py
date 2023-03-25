@@ -106,7 +106,8 @@ class Replayer:
             self.game.update(i, frame)
 
             # render game
-            self.game.render()
+            if self.render:
+                self.game.render()
         
         diff = perf_counter() - start_time
         print(HEADER + f'\n[+] Finished Replaying "{self.file_name}" in {diff:.3f} seconds' + ENDC)

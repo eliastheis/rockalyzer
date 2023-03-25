@@ -31,6 +31,11 @@ class Game:
         self.prepare_snapshot()
 
 
+###############
+# ACTOR STUFF #
+###############
+
+
     def update(self, frame_index, frame):
 
         # update time and fps
@@ -62,160 +67,6 @@ class Game:
 
         #if frame_index == 300:
         #    self.dump_actors_into_json()
-    
-
-    def calculate_stuff(self, frame_index):
-
-        # calculate car speed
-        for player, car in self.player_car_pairs:
-            if 'linear_velocity' in self.actors[car]:
-                linear_velocity = self.actors[car]['linear_velocity']
-                if linear_velocity is not None:
-                    speed = (linear_velocity['x'] ** 2 + linear_velocity['y'] ** 2 + linear_velocity['z'] ** 2) ** 0.5
-                    self.actors[car]['speed'] = speed
-            else:
-                self.actors[car]['speed'] = -1.0
-        
-        # calculate ball speed
-        if 'linear_velocity' in self.actors[self.ball_id]:
-            linear_velocity = self.actors[self.ball_id]['linear_velocity']
-            if linear_velocity is not None:
-                speed = (linear_velocity['x'] ** 2 + linear_velocity['y'] ** 2 + linear_velocity['z'] ** 2) ** 0.5
-                self.actors[self.ball_id]['speed'] = speed
-            else:
-                self.actors[self.ball_id]['speed'] = -1.0
-        else:
-            self.actors[self.ball_id]['speed'] = -1.0
-
-
-    def prepare_snapshot(self):
-        
-        self.hist_ball_speed = np.full(self.num_frames, -1.0, dtype=np.float32)
-        self.hist_player_speeds = {}
-
-
-    def snapshot_values(self, frame_index):
-        
-        # ball speed
-        self.hist_ball_speed[frame_index] = self.actors[self.get_ball()]['speed']
-
-        # player speeds
-        for player, car in self.player_car_pairs:
-            player_name = self.actors[player]['player_name']
-            if player_name not in self.hist_player_speeds:
-                self.hist_player_speeds[player_name] = np.full(self.num_frames, -1.0, dtype=np.float32)
-            self.hist_player_speeds[player_name][frame_index] = self.actors[car]['speed']
-
-
-    def dump_actors_into_json(self):
-        with open('json_dumps/actors.json', 'w') as f:
-            json_dump(self.actors, f, indent=4)
-            print(OKBLUE + 'Dumped actors in actors.json' + ENDC)
-            exit(0)
-
-
-    def get_player_car_pairs(self):
-        player_car_pairs = []
-
-        # get all actor_ids from objects with object_id 264
-        players = [actor_id for actor_id, actor in self.actors.items() if actor['object_id'] == Action.TAGame_Default__PRI_TA]
-
-        for player in players:
-            
-            # get all children of the player (car)
-            car = [actor_id for actor_id, actor in self.actors.items() if player in actor['parent_ids'] and actor['object_id'] == Action.Archetypes_Car_Car_Default]
-            if len(car) == 0:
-                pass
-            elif len(car) == 1:
-                car = car[0]
-                player_car_pairs.append((player, car))
-            else:
-                # if there are more than one car, the player was probably demoed
-                # the last car is the one that is used
-                car = car[-1]
-                player_car_pairs.append((player, car))
-        return player_car_pairs
-
-
-    def get_ball(self):
-
-        # get all actor_ids from objects with object_id 264
-        ball = [actor_id for actor_id, actor in self.actors.items() if actor['object_id'] == Action.Archetypes_Ball_Ball_Default]
-
-        if len(ball) == 0:
-            return None
-        elif len(ball) == 1:
-            return ball[0]
-        else:
-            print(WARNING + 'There are more than one ball' + ENDC)
-            return ball[-1]
-
-
-    def render_map(self):
-        # team orange
-        plt.plot([MAP_SIDE_WALL_X, MAP_SIDE_WALL_X], [0, MAP_WALL_DISTANCE_Y-MAP_CORNER_SIZE], color='orange') # wall
-        plt.plot([MAP_SIDE_WALL_X, MAP_SIDE_WALL_X-MAP_CORNER_SIZE], [MAP_WALL_DISTANCE_Y-MAP_CORNER_SIZE, MAP_WALL_DISTANCE_Y], color='orange') # angle
-        plt.plot([MAP_SIDE_WALL_X-MAP_CORNER_SIZE, MAP_HALF_GOAL_WIDTH], [MAP_WALL_DISTANCE_Y, MAP_WALL_DISTANCE_Y], color='orange') # back wall
-        plt.plot([MAP_HALF_GOAL_WIDTH, MAP_HALF_GOAL_WIDTH], [MAP_WALL_DISTANCE_Y, MAP_WALL_DISTANCE_Y+MAP_GOAL_DEPTH], color='orange') # goal
-        plt.plot([MAP_HALF_GOAL_WIDTH, -MAP_HALF_GOAL_WIDTH], [MAP_WALL_DISTANCE_Y+MAP_GOAL_DEPTH, MAP_WALL_DISTANCE_Y+MAP_GOAL_DEPTH], color='orange') # goal
-        plt.plot([-MAP_HALF_GOAL_WIDTH, -MAP_HALF_GOAL_WIDTH], [MAP_WALL_DISTANCE_Y, MAP_WALL_DISTANCE_Y+MAP_GOAL_DEPTH], color='orange') # goal
-        plt.plot([-MAP_SIDE_WALL_X+MAP_CORNER_SIZE, -MAP_HALF_GOAL_WIDTH], [MAP_WALL_DISTANCE_Y, MAP_WALL_DISTANCE_Y], color='orange') # back wall
-        plt.plot([-MAP_SIDE_WALL_X, -MAP_SIDE_WALL_X+MAP_CORNER_SIZE], [MAP_WALL_DISTANCE_Y-MAP_CORNER_SIZE, MAP_WALL_DISTANCE_Y], color='orange') # angle
-        plt.plot([-MAP_SIDE_WALL_X, -MAP_SIDE_WALL_X], [MAP_WALL_DISTANCE_Y-MAP_CORNER_SIZE, 0], color='orange') # wall
-        # team blue (inverted y)
-        plt.plot([MAP_SIDE_WALL_X, MAP_SIDE_WALL_X], [0, -MAP_WALL_DISTANCE_Y+MAP_CORNER_SIZE], color='blue') # wall
-        plt.plot([MAP_SIDE_WALL_X, MAP_SIDE_WALL_X-MAP_CORNER_SIZE], [-MAP_WALL_DISTANCE_Y+MAP_CORNER_SIZE, -MAP_WALL_DISTANCE_Y], color='blue') # angle
-        plt.plot([MAP_SIDE_WALL_X-MAP_CORNER_SIZE, MAP_HALF_GOAL_WIDTH], [-MAP_WALL_DISTANCE_Y, -MAP_WALL_DISTANCE_Y], color='blue') # back wall
-        plt.plot([MAP_HALF_GOAL_WIDTH, MAP_HALF_GOAL_WIDTH], [-MAP_WALL_DISTANCE_Y, -MAP_WALL_DISTANCE_Y-MAP_GOAL_DEPTH], color='blue') # goal
-        plt.plot([MAP_HALF_GOAL_WIDTH, -MAP_HALF_GOAL_WIDTH], [-MAP_WALL_DISTANCE_Y-MAP_GOAL_DEPTH, -MAP_WALL_DISTANCE_Y-MAP_GOAL_DEPTH], color='blue') # goal
-        plt.plot([-MAP_HALF_GOAL_WIDTH, -MAP_HALF_GOAL_WIDTH], [-MAP_WALL_DISTANCE_Y, -MAP_WALL_DISTANCE_Y-MAP_GOAL_DEPTH], color='blue') # goal
-        plt.plot([-MAP_SIDE_WALL_X+MAP_CORNER_SIZE, -MAP_HALF_GOAL_WIDTH], [-MAP_WALL_DISTANCE_Y, -MAP_WALL_DISTANCE_Y], color='blue') # back wall
-        plt.plot([-MAP_SIDE_WALL_X, -MAP_SIDE_WALL_X+MAP_CORNER_SIZE], [-MAP_WALL_DISTANCE_Y+MAP_CORNER_SIZE, -MAP_WALL_DISTANCE_Y], color='blue') # angle
-        plt.plot([-MAP_SIDE_WALL_X, -MAP_SIDE_WALL_X], [-MAP_WALL_DISTANCE_Y+MAP_CORNER_SIZE, 0], color='blue') # wall
-
-        # render middle line
-        plt.plot([MAP_SIDE_WALL_X, -MAP_SIDE_WALL_X], [0, 0], color='gray', linewidth=0.5)
-
-        # render outer bounds for better visualization
-        plt.scatter([MAP_OUTER_BOUND, MAP_OUTER_BOUND, -MAP_OUTER_BOUND, -MAP_OUTER_BOUND],
-                    [MAP_OUTER_BOUND, -MAP_OUTER_BOUND, MAP_OUTER_BOUND, -MAP_OUTER_BOUND],
-                    color='white', s=0.01)
-        
-    
-    def render_boosts(self):
-        for location in BOOST_LOCATIONS:
-            plt.scatter(location[0], location[1], color='yellow', s=0.5)
-
-
-    def render(self):
-        # check if rendering is enabled
-        if not self.b_render:
-            return
-        plt.clf()
-
-        # render map
-        self.render_map()
-
-        # render boosts
-        self.render_boosts()
-
-        # render players
-        for player, car in self.player_car_pairs:
-            player_name = self.actors[player]['player_name']
-            x = self.actors[car]['location']['x']
-            y = self.actors[car]['location']['y']
-            plt.scatter(x, y, label=player_name)
-
-        # render ball
-        ball = self.get_ball()
-        if ball is not None:
-            x = self.actors[ball]['location']['x']
-            y = self.actors[ball]['location']['y']
-            plt.scatter(x, y, label='ball', color='red')
-
-        plt.title(round(self.time))
-        plt.legend()
-        plt.pause(0.0001)
 
 
     def delete_actors(self, actors):
@@ -294,6 +145,8 @@ class Game:
                     self.actors[actor_id]['current_round'] = actor['attribute']['Int']
                 
                 case Action.TAGame_GameEvent_Soccar_TA_bBallHasBeenHit:
+                    self.render_current_frame()
+                    # TODO: find nearest player to ball and save it
                     self.actors[actor_id]['ball_has_been_hit'] = actor['attribute']['Boolean']
                 
                 case Action.TAGame_GameEvent_Soccar_TA_SecondsRemaining:
@@ -562,6 +415,186 @@ class Game:
                         pprint(self.actors[reference_id])
                     else:
                         print(WARNING + f'Reference {reference_id} (INVALID)' + ENDC)
+
+
+###############
+# VALUE STUFF #
+###############
+
+
+    def calculate_stuff(self, frame_index):
+
+        # calculate car speed
+        for player, car in self.player_car_pairs:
+            if 'linear_velocity' in self.actors[car]:
+                linear_velocity = self.actors[car]['linear_velocity']
+                if linear_velocity is not None:
+                    speed = (linear_velocity['x'] ** 2 + linear_velocity['y'] ** 2 + linear_velocity['z'] ** 2) ** 0.5
+                    self.actors[car]['speed'] = speed
+            else:
+                self.actors[car]['speed'] = -1.0
+        
+        # calculate ball speed
+        if 'linear_velocity' in self.actors[self.ball_id]:
+            linear_velocity = self.actors[self.ball_id]['linear_velocity']
+            if linear_velocity is not None:
+                speed = (linear_velocity['x'] ** 2 + linear_velocity['y'] ** 2 + linear_velocity['z'] ** 2) ** 0.5
+                self.actors[self.ball_id]['speed'] = speed
+            else:
+                self.actors[self.ball_id]['speed'] = -1.0
+        else:
+            self.actors[self.ball_id]['speed'] = -1.0
+
+
+    def prepare_snapshot(self):
+        
+        self.hist_ball_speed = np.full(self.num_frames, -1.0, dtype=np.float32)
+        self.hist_player_speeds = {}
+
+
+    def snapshot_values(self, frame_index):
+        
+        # ball speed
+        self.hist_ball_speed[frame_index] = self.actors[self.get_ball()]['speed']
+
+        # player speeds
+        for player, car in self.player_car_pairs:
+            player_name = self.actors[player]['player_name']
+            if player_name not in self.hist_player_speeds:
+                self.hist_player_speeds[player_name] = np.full(self.num_frames, -1.0, dtype=np.float32)
+            self.hist_player_speeds[player_name][frame_index] = self.actors[car]['speed']
+
+
+################
+# RENDER STUFF #
+################
+
+
+    def render_map(self):
+        # team orange
+        plt.plot([MAP_SIDE_WALL_X, MAP_SIDE_WALL_X], [0, MAP_WALL_DISTANCE_Y-MAP_CORNER_SIZE], color='orange') # wall
+        plt.plot([MAP_SIDE_WALL_X, MAP_SIDE_WALL_X-MAP_CORNER_SIZE], [MAP_WALL_DISTANCE_Y-MAP_CORNER_SIZE, MAP_WALL_DISTANCE_Y], color='orange') # angle
+        plt.plot([MAP_SIDE_WALL_X-MAP_CORNER_SIZE, MAP_HALF_GOAL_WIDTH], [MAP_WALL_DISTANCE_Y, MAP_WALL_DISTANCE_Y], color='orange') # back wall
+        plt.plot([MAP_HALF_GOAL_WIDTH, MAP_HALF_GOAL_WIDTH], [MAP_WALL_DISTANCE_Y, MAP_WALL_DISTANCE_Y+MAP_GOAL_DEPTH], color='orange') # goal
+        plt.plot([MAP_HALF_GOAL_WIDTH, -MAP_HALF_GOAL_WIDTH], [MAP_WALL_DISTANCE_Y+MAP_GOAL_DEPTH, MAP_WALL_DISTANCE_Y+MAP_GOAL_DEPTH], color='orange') # goal
+        plt.plot([-MAP_HALF_GOAL_WIDTH, -MAP_HALF_GOAL_WIDTH], [MAP_WALL_DISTANCE_Y, MAP_WALL_DISTANCE_Y+MAP_GOAL_DEPTH], color='orange') # goal
+        plt.plot([-MAP_SIDE_WALL_X+MAP_CORNER_SIZE, -MAP_HALF_GOAL_WIDTH], [MAP_WALL_DISTANCE_Y, MAP_WALL_DISTANCE_Y], color='orange') # back wall
+        plt.plot([-MAP_SIDE_WALL_X, -MAP_SIDE_WALL_X+MAP_CORNER_SIZE], [MAP_WALL_DISTANCE_Y-MAP_CORNER_SIZE, MAP_WALL_DISTANCE_Y], color='orange') # angle
+        plt.plot([-MAP_SIDE_WALL_X, -MAP_SIDE_WALL_X], [MAP_WALL_DISTANCE_Y-MAP_CORNER_SIZE, 0], color='orange') # wall
+        # team blue (inverted y)
+        plt.plot([MAP_SIDE_WALL_X, MAP_SIDE_WALL_X], [0, -MAP_WALL_DISTANCE_Y+MAP_CORNER_SIZE], color='blue') # wall
+        plt.plot([MAP_SIDE_WALL_X, MAP_SIDE_WALL_X-MAP_CORNER_SIZE], [-MAP_WALL_DISTANCE_Y+MAP_CORNER_SIZE, -MAP_WALL_DISTANCE_Y], color='blue') # angle
+        plt.plot([MAP_SIDE_WALL_X-MAP_CORNER_SIZE, MAP_HALF_GOAL_WIDTH], [-MAP_WALL_DISTANCE_Y, -MAP_WALL_DISTANCE_Y], color='blue') # back wall
+        plt.plot([MAP_HALF_GOAL_WIDTH, MAP_HALF_GOAL_WIDTH], [-MAP_WALL_DISTANCE_Y, -MAP_WALL_DISTANCE_Y-MAP_GOAL_DEPTH], color='blue') # goal
+        plt.plot([MAP_HALF_GOAL_WIDTH, -MAP_HALF_GOAL_WIDTH], [-MAP_WALL_DISTANCE_Y-MAP_GOAL_DEPTH, -MAP_WALL_DISTANCE_Y-MAP_GOAL_DEPTH], color='blue') # goal
+        plt.plot([-MAP_HALF_GOAL_WIDTH, -MAP_HALF_GOAL_WIDTH], [-MAP_WALL_DISTANCE_Y, -MAP_WALL_DISTANCE_Y-MAP_GOAL_DEPTH], color='blue') # goal
+        plt.plot([-MAP_SIDE_WALL_X+MAP_CORNER_SIZE, -MAP_HALF_GOAL_WIDTH], [-MAP_WALL_DISTANCE_Y, -MAP_WALL_DISTANCE_Y], color='blue') # back wall
+        plt.plot([-MAP_SIDE_WALL_X, -MAP_SIDE_WALL_X+MAP_CORNER_SIZE], [-MAP_WALL_DISTANCE_Y+MAP_CORNER_SIZE, -MAP_WALL_DISTANCE_Y], color='blue') # angle
+        plt.plot([-MAP_SIDE_WALL_X, -MAP_SIDE_WALL_X], [-MAP_WALL_DISTANCE_Y+MAP_CORNER_SIZE, 0], color='blue') # wall
+
+        # render middle line
+        plt.plot([MAP_SIDE_WALL_X, -MAP_SIDE_WALL_X], [0, 0], color='gray', linewidth=0.5)
+
+        # render outer bounds for better visualization
+        plt.scatter([MAP_OUTER_BOUND, MAP_OUTER_BOUND, -MAP_OUTER_BOUND, -MAP_OUTER_BOUND],
+                    [MAP_OUTER_BOUND, -MAP_OUTER_BOUND, MAP_OUTER_BOUND, -MAP_OUTER_BOUND],
+                    color='white', s=0.01)
+
+
+    def render_current_frame(self):
+        plt.style.use('dark_background')
+        plt.figure(figsize=(10, 10))
+        plt.ion()
+        self.render()
+        plt.pause(99999)
+
+
+    def render(self):
+        # check if rendering is enabled
+        plt.clf()
+
+        # render map
+        self.render_map()
+
+        # render boost pads
+        for location in BOOST_LOCATIONS:
+            plt.scatter(location[0], location[1], color='yellow', s=0.5)
+
+        # render players
+        for player, car in self.player_car_pairs:
+            player_name = self.actors[player]['player_name']
+            x = self.actors[car]['location']['x']
+            y = self.actors[car]['location']['y']
+            plt.scatter(x, y, label=player_name)
+
+        # render ball
+        ball = self.get_ball()
+        if ball is not None:
+            x = self.actors[ball]['location']['x']
+            y = self.actors[ball]['location']['y']
+            plt.scatter(x, y, label='ball', color='red')
+
+        plt.title(round(self.time))
+        plt.legend()
+        plt.pause(0.0001)
+
+
+####################
+# HELPER FUNCTIONS #
+####################
+
+
+    def dump_actors_into_json(self):
+        with open('json_dumps/actors.json', 'w') as f:
+            json_dump(self.actors, f, indent=4)
+            print(OKBLUE + 'Dumped actors in actors.json' + ENDC)
+            exit(0)
+
+
+    def get_player_car_pairs(self):
+        player_car_pairs = []
+
+        # get all actor_ids from objects with object_id 264
+        players = [actor_id for actor_id, actor in self.actors.items() if actor['object_id'] == Action.TAGame_Default__PRI_TA]
+
+        for player in players:
+            
+            # get all children of the player (car)
+            car = [actor_id for actor_id, actor in self.actors.items() if player in actor['parent_ids'] and actor['object_id'] == Action.Archetypes_Car_Car_Default]
+            if len(car) == 0:
+                pass
+            elif len(car) == 1:
+                car = car[0]
+                player_car_pairs.append((player, car))
+            else:
+                # if there are more than one car, the player was probably demoed
+                # the last car is the one that is used
+                car = car[-1]
+                player_car_pairs.append((player, car))
+        return player_car_pairs
+
+
+    def get_ball(self):
+
+        # get all actor_ids from objects with object_id 264
+        ball = [actor_id for actor_id, actor in self.actors.items() if actor['object_id'] == Action.Archetypes_Ball_Ball_Default]
+
+        if len(ball) == 0:
+            return None
+        elif len(ball) == 1:
+            return ball[0]
+        else:
+            print(WARNING + 'There are more than one ball' + ENDC)
+            return ball[-1]
+    
+    
+    def get_children(self, actor_id):
+        return [actor_id for actor_id, actor in self.actors.items() if actor_id in actor['parent_ids']]
+
+
+#########
+# STATS #
+#########
 
 
     def get_stats(self):
