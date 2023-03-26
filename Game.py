@@ -2,6 +2,7 @@ from pprint import pprint
 from json import dump as json_dump
 from matplotlib import pyplot as plt
 import numpy as np
+import math
 
 from console_colors import *
 from constants import *
@@ -19,6 +20,12 @@ class Game:
         self.time = 0.0
         self.current_fps = 0.0
         self.actors = {}
+
+        # state stuff
+        self.player_car_pairs = None
+        self.ball_id = None
+        self.last_shot = None
+        self.last_goal = None
 
         # render stuff
         if self.b_render:
@@ -53,7 +60,13 @@ class Game:
         self.add_actors(frame['new_actors'])
         
         # updated actors
-        self.update_actors(frame['updated_actors'], frame_index)
+        event_goal, event_hit_ball = self.update_actors(frame['updated_actors'], frame_index)
+
+        # handle all events
+        if event_goal:
+            self.handle_goal(frame_index)
+        if event_hit_ball:
+            self.handle_hit_ball(frame_index)
 
         # find objects
         self.player_car_pairs = self.get_player_car_pairs()
@@ -101,6 +114,11 @@ class Game:
 
 
     def update_actors(self, actors, frame_index):
+
+        # events
+        event_goal = False
+        event_hit_ball = False
+
         for actor in actors:
             actor_id = actor['actor_id']
             object_name = self.object_lookup[actor['object_id']]
@@ -145,8 +163,8 @@ class Game:
                     self.actors[actor_id]['current_round'] = actor['attribute']['Int']
                 
                 case Action.TAGame_GameEvent_Soccar_TA_bBallHasBeenHit:
-                    self.render_current_frame()
-                    # TODO: find nearest player to ball and save it
+                    # this event is not triggered when the ball is hit, but when the ball is hit at kickoff
+                    # and at some random times
                     self.actors[actor_id]['ball_has_been_hit'] = actor['attribute']['Boolean']
                 
                 case Action.TAGame_GameEvent_Soccar_TA_SecondsRemaining:
@@ -156,6 +174,9 @@ class Game:
                     self.actors[actor_id]['parent_ids'].append(actor['attribute']['ActiveActor']['actor'])
                 
                 case Action.TAGame_RBActor_TA_ReplicatedRBState:
+                    # if the new linear_velocity is None then we do not update the linear_velocity
+                    if actor['attribute']['RigidBody']['linear_velocity'] is None:
+                        del actor['attribute']['RigidBody']['linear_velocity']
                     self.actors[actor_id].update(actor['attribute']['RigidBody'])
 
                 case Action.TAGame_Vehicle_TA_ReplicatedSteer:
@@ -197,7 +218,7 @@ class Game:
                     self.actors[actor_id]['camera_settings'] = actor['attribute']['CamSettings']
                 
                 case Action.TAGame_CameraSettingsActor_TA_bUsingSecondaryCamera:
-                    self.actors[actor_id]['secondary_camera'] = actor['attribute']['Boolean']
+                    self.actors[actor_id]['using_ball_cam'] = actor['attribute']['Boolean']
                 
                 case Action.Engine_PlayerReplicationInfo_UniqueId:
                     self.actors[actor_id]['unique_id'] = actor['attribute']['UniqueId']
@@ -262,6 +283,8 @@ class Game:
                     self.actors[actor_id]['score'] = actor['attribute']['Int']
                 
                 case Action.TAGame_Ball_TA_HitTeamNum:
+                    event_hit_ball = True
+                    print(actor['attribute']['Byte'], end=' ')
                     self.actors[actor_id]['hit_team_num'] = actor['attribute']['Byte']
                 
                 case Action.TAGame_CarComponent_Dodge_TA_DodgeTorque:
@@ -313,9 +336,7 @@ class Game:
                     self.actors[actor_id]['parent_ids'].append(actor['attribute']['ActiveActor']['actor'])
                 
                 case Action.TAGame_PRI_TA_MatchGoals:
-                    self.actors[actor_id]['match_goals'] = actor['attribute']['Int']
-                
-                case Action.TAGame_PRI_TA_MatchGoals:
+                    event_goal = True
                     self.actors[actor_id]['match_goals'] = actor['attribute']['Int']
                 
                 case Action.TAGame_PRI_TA_MatchAssists:
@@ -415,6 +436,8 @@ class Game:
                         pprint(self.actors[reference_id])
                     else:
                         print(WARNING + f'Reference {reference_id} (INVALID)' + ENDC)
+        
+        return event_goal, event_hit_ball
 
 
 ###############
@@ -501,12 +524,15 @@ class Game:
                     color='white', s=0.01)
 
 
-    def render_current_frame(self):
+    def render_current_frame(self, pause_time=99999):
+        # update player, cars and ball for render
+        self.player_car_pairs = self.get_player_car_pairs()
+        self.ball_id = self.get_ball()
         plt.style.use('dark_background')
         plt.figure(figsize=(10, 10))
         plt.ion()
         self.render()
-        plt.pause(99999)
+        plt.pause(pause_time)
 
 
     def render(self):
@@ -522,7 +548,8 @@ class Game:
 
         # render players
         for player, car in self.player_car_pairs:
-            player_name = self.actors[player]['player_name']
+            player_name = 'unkown player' if 'player_name' not in self.actors[player] else self.actors[player]['player_name']
+            #player_name = self.actors[player]['player_name']
             x = self.actors[car]['location']['x']
             y = self.actors[car]['location']['y']
             plt.scatter(x, y, label=player_name)
@@ -590,6 +617,74 @@ class Game:
     
     def get_children(self, actor_id):
         return [actor_id for actor_id, actor in self.actors.items() if actor_id in actor['parent_ids']]
+
+
+    def handle_goal(self, frame_index):
+        # check if goal was scored
+        ball_id = self.get_ball()
+        # 1. ball is in goal
+        if abs(self.actors[ball_id]['location']['y']) < MAP_WALL_DISTANCE_Y:
+            return
+            
+        # 2. last goal was more than 3 seconds ago
+        if self.last_goal is not None and frame_index - self.last_goal < 3*30:
+            return
+
+        # set last goal to current frame
+        self.last_goal = frame_index
+
+        # calculate ball speed
+        linear_velocity = self.actors[ball_id]['linear_velocity']
+        if linear_velocity is None:
+            print(WARNING + 'Ball has no linear velocity' + ENDC)
+            exit()
+        ball_speed_squared = linear_velocity['x']**2 + linear_velocity['y']**2 + linear_velocity['z']**2
+        ball_speed = math.sqrt(ball_speed_squared)
+
+        speed_kmh = round(ball_speed * UU_TO_KMH_FACTOR, 2)
+        print(OKGREEN + f'GOAL! Ball speed: {speed_kmh} km/h' + ENDC)
+
+
+    def handle_hit_ball(self, frame_index):
+        player, car, distance_squared = self.get_nearest_car_to_ball()
+        player_name = self.actors[player]['player_name']
+        print(OKGREEN + f'Player {player_name} hit the ball' + ENDC)
+
+
+    def get_nearest_car_to_ball(self):
+        # returns tuple (player_id, car_id, distance_squared)
+        ball_location = self.actors[self.ball_id]['location']
+        ball_x, ball_y, ball_z = ball_location['x'], ball_location['y'], ball_location['z']
+        player_distances = []
+        for player, car in self.player_car_pairs:
+            car_location = self.actors[car]['location']
+            car_x, car_y, car_z = car_location['x'], car_location['y'], car_location['z']
+            # we do not need the actual distance, but the squared distance is faster to calculate
+            distance_squared = (car_x-ball_x)**2 + (car_y-ball_y)**2 + (car_z-ball_z)**2
+            player_distances.append((player, car, distance_squared))
+        # sort by distance
+        player_distances.sort(key=lambda x: x[2])
+        return player_distances[0]
+
+
+    def get_current_shot(self):
+        # returns dict with all information about the current shot
+        player_id, car_id, _ = self.get_nearest_car_to_ball()
+        if 'player_name' not in self.actors[player_id]:
+            return None
+        player_name = self.actors[player_id]['player_name']
+        car_location = self.actors[car_id]['location']
+        car_x, car_y, car_z = car_location['x'], car_location['y'], car_location['z']
+        ball_location = self.actors[self.ball_id]['location']
+        ball_x, ball_y, ball_z = ball_location['x'], ball_location['y'], ball_location['z']
+        shot = {
+            'player_id': player_id,
+            'player_name': player_name,
+            'car_id': car_id, 'car_x': car_x, 'car_y': car_y, 'car_z': car_z,
+            'ball_id': self.ball_id, 'ball_x': ball_x, 'ball_y': ball_y, 'ball_z': ball_z,
+            'time': self.time
+        }
+        return shot
 
 
 #########
