@@ -24,6 +24,7 @@ class Game:
         # state stuff
         self.player_car_pairs = None
         self.ball_id = None
+        self.seconds_remaining = 300
 
         # render stuff
         if self.b_render:
@@ -167,6 +168,7 @@ class Game:
                     self.actors[actor_id]['ball_has_been_hit'] = actor['attribute']['Boolean']
                 
                 case Action.TAGame_GameEvent_Soccar_TA_SecondsRemaining:
+                    self.seconds_remaining = actor['attribute']['Int']
                     self.actors[actor_id]['seconds_remaining'] = actor['attribute']['Int']
                 
                 case Action.Engine_Pawn_PlayerReplicationInfo:
@@ -512,6 +514,9 @@ class Game:
                        
 
     def prepare_snapshot(self):
+
+        self.hist_seconds_remaining = np.full(self.num_frames, -1.0, dtype=np.int32)
+
         self.shots = []
         self.goals = []
 
@@ -522,9 +527,23 @@ class Game:
         self.hist_player_ball_distances = {}
         self.hist_ball_linear_velocities = np.full((self.num_frames, 3), -1.0, dtype=np.float32)
         self.hist_ball_linear_velocities_diff_len = np.full(self.num_frames, -1.0, dtype=np.float32)
+        self.hist_ping = {}
         
 
     def snapshot_values(self, frame_index):
+
+        # seconds remaining
+        self.hist_seconds_remaining[frame_index] = self.seconds_remaining
+
+        # ping
+        for player, _ in self.player_car_pairs:
+            player_name = self.actors[player]['player_name']
+            ping = -1
+            if player_name not in self.hist_ping:
+                self.hist_ping[player_name] = np.full(self.num_frames, -1.0, dtype=np.int32)
+            if 'ping' in self.actors[player]:
+                ping = self.actors[player]['ping']
+            self.hist_ping[player_name][frame_index] = ping
 
         # ball speed
         self.hist_ball_speed[frame_index] = self.actors[self.get_ball()]['speed']
@@ -725,6 +744,21 @@ class Game:
         return shot
 
 
+    def seconds_to_timestamp(self, seconds_remaining):
+        # returns timestamp in format 'mm:ss'
+        minutes = int(seconds_remaining // 60)
+        seconds = int(seconds_remaining % 60)
+        return f'{minutes:02d}:{seconds:02d}'
+
+
+    def get_ping_metrics(self, player_name):
+        # return min, avgerage and max ping, while skipping ping values of -1
+        pings = [ping for ping in self.hist_ping[player_name] if ping != -1]
+        if len(pings) == 0:
+            return None
+        return min(pings), sum(pings)/len(pings), max(pings)
+
+
 #################
 # EVENT HANDLER #
 #################
@@ -784,18 +818,86 @@ class Game:
 #########
 
 
-    def get_stats(self):
-        stats = {}
-        
-        stats['ball_speed'] = self.hist_ball_speed
-        stats['ball_angle'] = self.hist_ball_angles
-        stats['ball_linear_velocity'] = self.hist_ball_linear_velocities
-        stats['ball_linear_velocity_diff_len'] = self.hist_ball_linear_velocities_diff_len
-        
-        stats['player_speeds'] = self.hist_player_speeds
-        stats['player_distances'] = self.hist_player_ball_distances
+    def get_stats(self, properties):
 
-        stats['goals'] = self.goals
+        # prepare stats dict
+        stats = {}
+
+        # general stuff
+        stats['datetime'] = properties['Date']
+        stats['team_size'] = properties['TeamSize']
+        stats['scores'] = {'Blue': properties['Team0Score'], 'Orange': properties['Team1Score']}
+        stats['replay_name'] = properties['ReplayName']
+        stats['replay_id'] = properties['Id']
+        stats['map_name'] = properties['MapName']
+        stats['num_frames'] = properties['NumFrames']
+        
+        # players
+        stats['players'] = []
+        player_stats = properties['PlayerStats']
+        for player_id, _ in self.player_car_pairs:
+            player = {}
+            player_stat = [p for p in player_stats if p['Name'] == self.actors[player_id]['player_name']][0]
+            
+            # general stuff
+            player['player_name'] = self.actors[player_id]['player_name'] 
+            player['team'] = 'Blue' if player_stat['Team'] == 0 else 'Orange'
+            player['is_bot'] = player_stat['bBot']
+            match_values = {}    
+            match_values['shots'] = player_stat['Shots']
+            match_values['goals'] = player_stat['Goals']
+            match_values['saves'] = player_stat['Saves']
+            match_values['assists'] = player_stat['Assists']
+            match_values['score'] = player_stat['Score']
+            player['match_values'] = match_values
+            
+            # ping
+            min_, avg_, max_ = self.get_ping_metrics(player['player_name'])
+            player['ping'] = {'min': min_, 'avg': avg_, 'max': max_}
+
+            # platform
+            player['platform'] = list(self.actors[player_id]['unique_id']['remote_id'])[0]
+            match player['platform']:
+                case 'Epic':
+                    player['platform_id'] = self.actors[player_id]['unique_id']['remote_id'][player['platform']]
+                case 'PlayStation':
+                    player['platform_id'] = self.actors[player_id]['unique_id']['remote_id'][player['platform']]['online_id']
+            
+            # things that might not be set
+            unkown_keys = ['mmr', 'title']
+            for key in unkown_keys:
+                if key in self.actors[player_id]:
+                    player[key] = self.actors[player_id][key]
+                else:
+                    player[key] = None
+            
+            stats['players'].append(player)
+
+        # GOALS
+        # check if number of goals in properties is the same as in the goals list
+        if len(self.goals) != len(properties['Goals']):
+            print(WARNING + 'Number of goals in properties does not match number of goals in goals list' + ENDC)
+            exit()
+        stats['goals'] = []
+        for i in range(len(self.goals)):
+            goal = {}
+            goal['frame_index'] = self.goals[i]['frame_index']
+            goal['player_name'] = properties['Goals'][i]['PlayerName']
+            goal['team'] = 'Blue' if properties['Goals'][i]['PlayerTeam'] == 0 else 'Orange'
+            goal['ball_speed_kmh'] = self.goals[i]['ball_speed'] * UU_TO_KMH_FACTOR
+            goal['timestamp'] = self.seconds_to_timestamp(self.hist_seconds_remaining[goal['frame_index']])
+            stats['goals'].append(goal)
+            
+        # debug stuff
+        stats['debug'] = {}
+        stats['debug']['ball_speed'] = self.hist_ball_speed
+        stats['debug']['ball_angle'] = self.hist_ball_angles
+        stats['debug']['ball_linear_velocity'] = self.hist_ball_linear_velocities
+        stats['debug']['ball_linear_velocity_diff_len'] = self.hist_ball_linear_velocities_diff_len
+        stats['debug']['player_speeds'] = self.hist_player_speeds
+        stats['debug']['player_distances'] = self.hist_player_ball_distances
+
+        # goals and shots
         stats['shots'] = self.shots
 
         return stats

@@ -27,13 +27,13 @@ class Replayer:
         self.game = Game(len(self.json_content['network_frames']['frames']), self.object_lookup, self.name_lookup, self.json_content['debug_info'], self.render)
     
         # print simple header
-        self.print_sime_stats()
+        self.print_header_info()
 
         # load actions
         Action.set_values(self.json_content['objects'])
     
 
-    def print_sime_stats(self):
+    def print_header_info(self):
 
         prop = self.json_content['properties']
         replay_name = prop['ReplayName']
@@ -114,7 +114,7 @@ class Replayer:
         
     
     def get_stats(self):
-        return self.game.get_stats()
+        return self.game.get_stats(self.json_content['properties'])
 
 
 if __name__ == '__main__':
@@ -130,3 +130,9 @@ if __name__ == '__main__':
     print(HEADER + '\n=== Stats ===' + ENDC)
     for key in stats:
         print(OKGREEN + f' {key}: \t{str(stats[key])[:50]}' + ENDC)
+
+    print(OKGREEN + '\nGoals:' + ENDC)
+    pprint(stats['goals'])
+
+    print(OKGREEN + 'Players:' + ENDC)
+    pprint(stats['players'])
