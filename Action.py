@@ -78,6 +78,8 @@ class Action:
     TAGame_Team_TA_ClubColors = -1
     TAGame_Car_TA_ClubColors = -1
     ProjectX_GRI_X_ReplicatedGameMutatorIndex = -1
+    TAGame_CarComponent_FlipCar_TA_bFlipRight = -1
+    TAGame_PRI_TA_bIsDistracted = -1
     
     TAGame_GameEvent_TA_MatchTypeClass = -1 # weird event
     Engine_GameReplicationInfo_GameClass = -1 # weird event
@@ -258,3 +260,7 @@ class Action:
                     Action.TAGame_Car_TA_ClubColors = i
                 case 'ProjectX.GRI_X:ReplicatedGameMutatorIndex':
                     Action.ProjectX_GRI_X_ReplicatedGameMutatorIndex = i
+                case 'TAGame.CarComponent_FlipCar_TA:bFlipRight':
+                    Action.TAGame_CarComponent_FlipCar_TA_bFlipRight = i
+                case 'TAGame.PRI_TA:bIsDistracted':
+                    Action.TAGame_PRI_TA_bIsDistracted = i

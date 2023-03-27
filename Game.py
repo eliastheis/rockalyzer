@@ -398,6 +398,12 @@ class Game:
                 case Action.ProjectX_GRI_X_ReplicatedGameMutatorIndex:
                     self.actors[actor_id]['game_mutator_index'] = actor['attribute']['Int']
                 
+                case Action.TAGame_CarComponent_FlipCar_TA_bFlipRight:
+                    self.actors[actor_id]['flip_right'] = actor['attribute']['Boolean']
+                
+                case Action.TAGame_PRI_TA_bIsDistracted:
+                    self.actors[actor_id]['is_distracted'] = actor['attribute']['Boolean']
+                
                 case Action.TAGame_GameEvent_TA_MatchTypeClass:
                     # pretty weird event
                     pass
