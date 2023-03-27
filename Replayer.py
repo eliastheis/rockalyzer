@@ -129,25 +129,4 @@ if __name__ == '__main__':
     stats = replayer.get_stats()
     print(HEADER + '\n=== Stats ===' + ENDC)
     for key in stats:
-        print(OKGREEN + f' {key}' + ENDC)
-
-    # plot stats
-    plt.style.use('dark_background')
-
-    thrshld = BALL_HIT_BALL_ANGLE_CHANGE_THRESHOLD
-    ball_linear_velocity_diff_len = [thrshld if a >= thrshld else 0 for a in stats['ball_linear_velocity_diff_len']]
-    ball_speed = stats['ball_speed']
-
-    # plot distances between players and ball
-    colors = ['magenta', 'yellow', 'cyan', 'orange']
-    for i, player_name in enumerate(stats['player_distances']):
-        plt.plot(stats['player_distances'][player_name], label=player_name, color=colors[i])
-    # plot ball speed diff
-    plt.plot(ball_speed * 0.1, label='ball speed', color='red')
-    # scatter plot for car hitting ball
-    plt.scatter(stats['x'], stats['y'], label='FINAL car hitting ball', color='red', s=100)
-    # plot ball_linear_velocity_diff_len
-    plt.plot(ball_linear_velocity_diff_len, label='ball_linear_velocity_diff_len', color='green')
-
-    plt.legend()
-    plt.show()
+        print(OKGREEN + f' {key}: \t{str(stats[key])[:50]}' + ENDC)

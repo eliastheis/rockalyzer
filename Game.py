@@ -25,10 +25,6 @@ class Game:
         self.player_car_pairs = None
         self.ball_id = None
 
-        # temp
-        self.x = []
-        self.y = []
-
         # render stuff
         if self.b_render:
             plt.style.use('dark_background')
@@ -782,11 +778,6 @@ class Game:
         self.shots.append(shot)
         print(OKGREEN + f'Player {player_name} hit the ball' + ENDC)
 
-        # temp
-        self.x.append(frame_index)
-        self.y.append(self.hist_player_ball_distances[player_name][frame_index])
-
-
 
 #########
 # STATS #
@@ -807,9 +798,4 @@ class Game:
         stats['goals'] = self.goals
         stats['shots'] = self.shots
 
-        # temp
-        stats['x'] = self.x
-        stats['y'] = self.y
-
-        
         return stats
