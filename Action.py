@@ -55,9 +55,6 @@ class Action:
     ProjectX_GRI_X_ReplicatedGamePlaylist = -1
     TAGame_Team_TA_GameEvent = -1
     TAGame_VehiclePickup_TA_NewReplicatedPickupData = -1
-    Archetypes_Car_Car_Default = -1 # car
-    Archetypes_Ball_Ball_Default = -1 # ball
-    TAGame_Default__PRI_TA = -1 # player
     TAGame_PRI_TA_PersistentCamera = -1
     TAGame_CameraSettingsActor_TA_PRI = -1
     TAGame_Ball_TA_GameEvent = -1
@@ -94,6 +91,23 @@ class Action:
     TAGame_PRI_TA_ClubID = -1
     TAGame_GameEvent_Team_TA_bForfeit = -1
     TAGame_PRI_TA_PlayerHistoryKey = -1
+    Engine_PlayerReplicationInfo_bTimedOut = -1
+    Engine_ReplicatedActor_ORS_ReplicatedOwner = -1
+    TAGame_MaxTimeWarningData_TA_EndGameWarningEpochTime = -1
+    TAGame_MaxTimeWarningData_TA_EndGameEpochTime = -1
+    TAGame_Ball_TA_ReplicatedWorldBounceScale = -1
+    TAGame_PRI_TA_bIsInSplitScreen = -1
+    TAGame_RBActor_TA_bReplayActor = -1
+    TAGame_GameEvent_Soccar_TA_bUnlimitedTime = -1
+    TAGame_VehiclePickup_TA_bNoPickup = -1
+    TAGame_CarComponent_Boost_TA_UnlimitedBoostRefCount = -1
+    TAGame_PRI_TA_PawnType = -1
+    
+    Archetypes_Car_Car_Default = -1 # car
+    Archetypes_Ball_Ball_Default = -1 # ball
+    TAGame_Default__PRI_TA = -1 # player
+    Archetypes_GameEvent_GameEvent_Hockey = -1 # hockey puck
+    Archetypes_GameEvent_GameEvent_Basketball = -1 # basketball (hoops ball)
     
     TAGame_GameEvent_TA_MatchTypeClass = -1 # weird event
     Engine_GameReplicationInfo_GameClass = -1 # weird event
@@ -306,3 +320,29 @@ class Action:
                     Action.TAGame_GameEvent_Team_TA_bForfeit = i
                 case 'TAGame.PRI_TA:PlayerHistoryKey':
                     Action.TAGame_PRI_TA_PlayerHistoryKey = i
+                case 'Engine.PlayerReplicationInfo:bTimedOut':
+                    Action.Engine_PlayerReplicationInfo_bTimedOut = i
+                case 'Engine.ReplicatedActor_ORS:ReplicatedOwner':
+                    Action.Engine_ReplicatedActor_ORS_ReplicatedOwner = i
+                case 'TAGame.MaxTimeWarningData_TA:EndGameWarningEpochTime':
+                    Action.TAGame_MaxTimeWarningData_TA_EndGameWarningEpochTime = i
+                case 'TAGame.MaxTimeWarningData_TA:EndGameEpochTime':
+                    Action.TAGame_MaxTimeWarningData_TA_EndGameEpochTime = i
+                case 'Archetypes.GameEvent.GameEvent_Hockey':
+                    Action.Archetypes_GameEvent_GameEvent_Hockey = i
+                case 'TAGame.Ball_TA:ReplicatedWorldBounceScale':
+                    Action.TAGame_Ball_TA_ReplicatedWorldBounceScale = i
+                case 'TAGame.PRI_TA:bIsInSplitScreen':
+                    Action.TAGame_PRI_TA_bIsInSplitScreen = i
+                case 'TAGame.RBActor_TA:bReplayActor':
+                    Action.TAGame_RBActor_TA_bReplayActor = i
+                case 'Archetypes.GameEvent.GameEvent_Basketball':
+                    Action.Archetypes_GameEvent_GameEvent_Basketball = i
+                case 'TAGame.GameEvent_Soccar_TA:bUnlimitedTime':
+                    Action.TAGame_GameEvent_Soccar_TA_bUnlimitedTime = i
+                case 'TAGame.VehiclePickup_TA:bNoPickup':
+                    Action.TAGame_VehiclePickup_TA_bNoPickup = i
+                case 'TAGame.CarComponent_Boost_TA:UnlimitedBoostRefCount':
+                    Action.TAGame_CarComponent_Boost_TA_UnlimitedBoostRefCount = i
+                case 'TAGame.PRI_TA:PawnType':
+                    Action.TAGame_PRI_TA_PawnType = i
