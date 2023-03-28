@@ -299,7 +299,13 @@ class Game:
                     self.actors[actor_id]['game_started'] = actor['attribute']['Boolean']
                 
                 case Action.ProjectX_GRI_X_GameServerID:
-                    self.actors[actor_id]['server_id'] = actor['attribute']['String']
+                    if 'QWord' in actor['attribute']:
+                        self.actors[actor_id]['server_id'] = actor['attribute']['QWord']
+                    elif 'String' in actor['attribute']:
+                        self.actors[actor_id]['server_id'] = actor['attribute']['String']
+                    else:
+                        print(WARNING, 'Unknown GameServerID type: ' + str(actor['attribute']) + ENDC)
+                        exit()
 
                 case Action.ProjectX_GRI_X_Reservations:
                     self.actors[actor_id]['reservation'] = actor['attribute']['Reservation']
@@ -832,7 +838,9 @@ class Game:
         # general stuff
         stats['datetime'] = properties['Date']
         stats['team_size'] = properties['TeamSize']
-        stats['scores'] = {'Blue': properties['Team0Score'], 'Orange': properties['Team1Score']}
+        stats['scores'] = {}
+        stats['scores']['Blue'] = 0 if 'Team0Score' not in properties else properties['Team0Score']
+        stats['scores']['Orange'] = 0 if 'Team1Score' not in properties else properties['Team1Score']
         stats['replay_name'] = properties['ReplayName']
         stats['replay_id'] = properties['Id']
         stats['map_name'] = properties['MapName']
@@ -841,21 +849,43 @@ class Game:
         # players
         stats['players'] = []
         player_stats = properties['PlayerStats']
-        for player_id, _ in self.player_car_pairs:
+        for player_id, car_id in self.player_car_pairs:
+
             player = {}
-            player_stat = [p for p in player_stats if p['Name'] == self.actors[player_id]['player_name']][0]
-            
-            # general stuff
             player['player_name'] = self.actors[player_id]['player_name'] 
-            player['team'] = 'Blue' if player_stat['Team'] == 0 else 'Orange'
-            player['is_bot'] = player_stat['bBot']
-            match_values = {}    
-            match_values['shots'] = player_stat['Shots']
-            match_values['goals'] = player_stat['Goals']
-            match_values['saves'] = player_stat['Saves']
-            match_values['assists'] = player_stat['Assists']
-            match_values['score'] = player_stat['Score']
-            player['match_values'] = match_values
+
+            # try to extract player stats from header
+            player_stat = [p for p in player_stats if p['Name'] == self.actors[player_id]['player_name']]
+            if len(player_stat) > 0:
+                player_stat = player_stat[0]
+                # general stuff
+                
+                player['team'] = 'Blue' if player_stat['Team'] == 0 else 'Orange'
+                player['is_bot'] = player_stat['bBot']
+                match_values = {}    
+                match_values['shots'] = player_stat['Shots']
+                match_values['goals'] = player_stat['Goals']
+                match_values['saves'] = player_stat['Saves']
+                match_values['assists'] = player_stat['Assists']
+                match_values['score'] = player_stat['Score']
+                player['match_values'] = match_values
+
+            # if not available, use data from replay
+            else:
+
+                player_object = self.actors[player_id]
+                car_object = self.actors[car_id]
+
+                player['team'] = 'Blue' if car_object['team_paint']['team'] == 0 else 'Orange'
+                player['is_bot'] = 'unknown'
+                match_values = {}
+                values = ['match_shots', 'match_goals', 'match_saves', 'match_assists', 'match_score']
+                for value in values:
+                    if value in player_object:
+                        match_values[value.split('_')[1]] = player_object[value]
+                    else:
+                        match_values[value.split('_')[1]] = 0
+                player['match_values'] = match_values
             
             # ping
             min_, avg_, max_ = self.get_ping_metrics(player['player_name'])
