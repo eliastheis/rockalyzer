@@ -25,6 +25,7 @@ class Game:
         self.player_car_pairs = None
         self.ball_id = None
         self.seconds_remaining = 300
+        self.frame_index = 0
 
         # render stuff
         if self.b_render:
@@ -48,6 +49,7 @@ class Game:
         self.time = frame['time']
         delta = frame['delta']
         self.current_fps = 0 if delta == 0 else 1 / delta
+        self.frame_index = frame_index
 
         # next: handle new_actors, deleted_actors and updated_actors
         # first we handle deleted_actors, because actor_id's are reused
@@ -447,6 +449,7 @@ class Game:
                 case Action.TAGame_GameEvent_Soccar_TA_bOverTime:
                     if actor['attribute']['Boolean']:
                         self.actors[actor_id]['over_time_at_frame'] = frame_index
+                        print(WARNING + 'Overtime!' + ENDC)
                     else:
                         print(WARNING + 'Actor ' + str(actor_id) + ' is not in overtime' + ENDC)
                         exit()
@@ -589,7 +592,7 @@ class Game:
                     player_car_dist_tuples.sort(key=lambda x: x[3])
                     player_name, player, car, _ = player_car_dist_tuples[0]
                     self.handle_ball_hit(player_name, player, car, frame_index)
-                       
+                              
 
     def prepare_snapshot(self):
 
@@ -728,7 +731,7 @@ class Game:
             y = self.actors[ball]['location']['y']
             plt.scatter(x, y, label='ball', color='red')
 
-        plt.title(round(self.time))
+        plt.title(self.seconds_to_timestamp(self.seconds_remaining) + ' - ' + str(round(self.time, 3)))
         plt.legend()
         plt.pause(0.0001)
 
@@ -847,12 +850,27 @@ class Game:
         ball_id = self.get_ball()
         # 1. ball is in goal
         ball_y = self.actors[ball_id]['location']['y']
-        if abs(ball_y) < MAP_WALL_DISTANCE_Y:
+        if abs(ball_y) < MAP_WALL_DISTANCE_Y + BALL_RADIUS/2:
             return
-            
+    
         # 2. last goal was more than 3 seconds ago
         if len(self.goals) > 0 and frame_index - self.goals[-1]['frame_index'] < 3*30:
             return
+    
+        # if for whatever reason the ball does not have a linear_velocity, we plot the history
+        # we look back in history until we find a frame where the ball had a linear_velocity
+        if 'linear_velocity' not in self.actors[ball_id]:
+            found = False
+            for i in range(0, 3*30):
+                tmp_vel = self.hist_ball_linear_velocities[frame_index-i]
+                print(tmp_vel)
+                if tmp_vel[0] != -1.0 and tmp_vel[1] != -1.0 and tmp_vel[2] != -1.0:
+                    found = True
+                    self.actors[ball_id]['linear_velocity'] = {'x': tmp_vel[0], 'y': tmp_vel[1], 'z': tmp_vel[2]}
+                    break
+            if not found:
+                print(WARNING + 'Ball has no linear_velocity' + ENDC)
+                exit()
     
         # at this point we know that a goal was scored!
         goal = {'frame_index': frame_index, 'time': self.time}
@@ -965,14 +983,18 @@ class Game:
                 player['ping'] = {'min': min_, 'avg': avg_, 'max': max_}
 
                 # platform
-                player['platform'] = list(self.actors[player_id]['unique_id']['remote_id'])[0]
-                match player['platform']:
-                    case 'Epic':
-                        player['platform_id'] = self.actors[player_id]['unique_id']['remote_id'][player['platform']]
-                    case 'Xbox':
-                        player['platform_id'] = self.actors[player_id]['unique_id']['remote_id'][player['platform']]
-                    case 'PlayStation':
-                        player['platform_id'] = self.actors[player_id]['unique_id']['remote_id'][player['platform']]['online_id']
+                if 'unique_id' not in self.actors[player_id]:
+                    player['platform'] = None
+                    player['platform_id'] = None
+                else:
+                    player['platform'] = list(self.actors[player_id]['unique_id']['remote_id'])[0]
+                    match player['platform']:
+                        case 'Epic':
+                            player['platform_id'] = self.actors[player_id]['unique_id']['remote_id'][player['platform']]
+                        case 'Xbox':
+                            player['platform_id'] = self.actors[player_id]['unique_id']['remote_id'][player['platform']]
+                        case 'PlayStation':
+                            player['platform_id'] = self.actors[player_id]['unique_id']['remote_id'][player['platform']]['online_id']
                 
                 # things that might not be set
                 unkown_keys = ['mmr', 'title']
@@ -987,7 +1009,12 @@ class Game:
         # GOALS
         # check if number of goals in properties is the same as in the goals list
         if len(self.goals) != len(properties['Goals']):
-            print(WARNING + 'Number of goals in properties does not match number of goals in goals list' + ENDC)
+            print(WARNING + f'Number of goals in header ({len(properties["Goals"])}) does not match number of goals in goals list ({len(self.goals)})' + ENDC)
+
+            pprint(properties['Goals'])
+            print()
+            pprint(self.goals)
+
             exit()
         stats['goals'] = []
         for i in range(len(self.goals)):
