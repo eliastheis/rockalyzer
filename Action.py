@@ -80,6 +80,20 @@ class Action:
     ProjectX_GRI_X_ReplicatedGameMutatorIndex = -1
     TAGame_CarComponent_FlipCar_TA_bFlipRight = -1
     TAGame_PRI_TA_bIsDistracted = -1
+    TAGame_Team_TA_Difficulty = -1
+    TAGame_Team_TA_CustomTeamName = -1
+    ProjectX_GRI_X_MatchGUID = -1
+    TAGame_GameEvent_Soccar_TA_SeriesLength = -1
+    TAGame_CarComponent_Dodge_TA_DodgeImpulse = -1
+    Engine_PlayerReplicationInfo_RemoteUserData = -1
+    TAGame_GameEvent_Soccar_TA_bOverTime = -1
+    TAGame_GameEvent_Soccar_TA_bClubMatch = -1
+    TAGame_Team_TA_ClubID = -1
+    Engine_PlayerReplicationInfo_bBot = -1
+    TAGame_PRI_TA_BotProductName = -1
+    TAGame_PRI_TA_ClubID = -1
+    TAGame_GameEvent_Team_TA_bForfeit = -1
+    TAGame_PRI_TA_PlayerHistoryKey = -1
     
     TAGame_GameEvent_TA_MatchTypeClass = -1 # weird event
     Engine_GameReplicationInfo_GameClass = -1 # weird event
@@ -264,3 +278,31 @@ class Action:
                     Action.TAGame_CarComponent_FlipCar_TA_bFlipRight = i
                 case 'TAGame.PRI_TA:bIsDistracted':
                     Action.TAGame_PRI_TA_bIsDistracted = i
+                case 'TAGame.Team_TA:Difficulty':
+                    Action.TAGame_Team_TA_Difficulty = i
+                case 'TAGame.Team_TA:CustomTeamName':
+                    Action.TAGame_Team_TA_CustomTeamName = i
+                case 'ProjectX.GRI_X:MatchGUID':
+                    Action.ProjectX_GRI_X_MatchGUID = i
+                case 'TAGame.GameEvent_Soccar_TA:SeriesLength':
+                    Action.TAGame_GameEvent_Soccar_TA_SeriesLength = i
+                case 'TAGame.CarComponent_Dodge_TA:DodgeImpulse':
+                    Action.TAGame_CarComponent_Dodge_TA_DodgeImpulse = i
+                case 'Engine.PlayerReplicationInfo:RemoteUserData':
+                    Action.Engine_PlayerReplicationInfo_RemoteUserData = i
+                case 'TAGame.GameEvent_Soccar_TA:bOverTime':
+                    Action.TAGame_GameEvent_Soccar_TA_bOverTime = i
+                case 'TAGame.GameEvent_Soccar_TA:bClubMatch':
+                    Action.TAGame_GameEvent_Soccar_TA_bClubMatch = i
+                case 'TAGame.Team_TA:ClubID':
+                    Action.TAGame_Team_TA_ClubID = i
+                case 'Engine.PlayerReplicationInfo:bBot':
+                    Action.Engine_PlayerReplicationInfo_bBot = i
+                case 'TAGame.PRI_TA:BotProductName':
+                    Action.TAGame_PRI_TA_BotProductName = i
+                case 'TAGame.PRI_TA:ClubID':
+                    Action.TAGame_PRI_TA_ClubID = i
+                case 'TAGame.GameEvent_Team_TA:bForfeit':
+                    Action.TAGame_GameEvent_Team_TA_bForfeit = i
+                case 'TAGame.PRI_TA:PlayerHistoryKey':
+                    Action.TAGame_PRI_TA_PlayerHistoryKey = i

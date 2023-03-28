@@ -207,10 +207,16 @@ class Game:
                     self.actors[actor_id]['camera_pitch'] = actor['attribute']['Byte']
                 
                 case Action.TAGame_CameraSettingsActor_TA_bMouseCameraToggleEnabled:
-                    self.actors[actor_id]['camera_toggle'] = actor['attribute']['Boolean']
+                    if 'Boolean' in actor['attribute']:
+                        self.actors[actor_id]['camera_toggle'] = actor['attribute']['Boolean']
+                    else:
+                        print(WARNING, 'Unknown camera toggle type (should be Boolean)', ENDC, actor['attribute'])
                 
                 case Action.TAGame_CameraSettingsActor_TA_bUsingSwivel:
-                    self.actors[actor_id]['using_swivel'] = actor['attribute']['Boolean']
+                    if 'Boolean' in actor['attribute']:
+                        self.actors[actor_id]['using_swivel'] = actor['attribute']['Boolean']
+                    else:
+                        print(WARNING, 'Unknown using swivel type (should be Boolean)', ENDC, actor['attribute'])
                 
                 case Action.TAGame_CameraSettingsActor_TA_bUsingBehindView:
                     self.actors[actor_id]['using_behind_view'] = actor['attribute']['Boolean']
@@ -232,12 +238,16 @@ class Game:
                         id = remote_id['Steam']
                     elif 'PlayStation' in remote_id:
                         id = remote_id['PlayStation']['online_id']
+                    elif 'PsyNet' in remote_id:
+                        id = remote_id['PsyNet']['online_id']
+                    elif 'Xbox' in remote_id:
+                        id = remote_id['Xbox']
                     if id:
                         for info in self.debug_info:
                             if id in info['user']:
                                 self.actors[actor_id]['mmr'] = info['text']
                     else:
-                        print(WARNING, 'Unknown remote_id type: ' + str(remote_id) + ENDC)
+                        print(WARNING, 'Unknown remote_id type ', ENDC,  str(remote_id))
                         exit()
                 
                 case Action.Engine_PlayerReplicationInfo_Team:
@@ -275,7 +285,8 @@ class Game:
                 
                 case Action.TAGame_PRI_TA_ReplicatedGameEvent:
                     other_actor_id = actor['attribute']['ActiveActor']['actor']
-                    self.actors[other_actor_id]['frames_with_event'].append(frame_index)
+                    if other_actor_id != -1:
+                        self.actors[other_actor_id]['frames_with_event'].append(frame_index)
                 
                 case Action.TAGame_PRI_TA_PlayerHistoryValid:
                     self.actors[actor_id]['player_history_valid'] = actor['attribute']['Boolean']
@@ -293,7 +304,10 @@ class Game:
                     self.actors[actor_id]['server'] = actor['attribute']['String']
                 
                 case Action.ProjectX_GRI_X_MatchGuid:
-                    self.actors[actor_id]['match_guid'] = actor['attribute']['String']
+                    if 'String' in actor['attribute']:
+                        self.actors[actor_id]['match_guid'] = actor['attribute']['String']
+                    else:
+                        print(WARNING, 'Unknown MatchGuid type (should be String)', ENDC, str(actor['attribute']))
                 
                 case Action.ProjectX_GRI_X_bGameStarted:
                     self.actors[actor_id]['game_started'] = actor['attribute']['Boolean']
@@ -304,14 +318,16 @@ class Game:
                     elif 'String' in actor['attribute']:
                         self.actors[actor_id]['server_id'] = actor['attribute']['String']
                     else:
-                        print(WARNING, 'Unknown GameServerID type: ' + str(actor['attribute']) + ENDC)
-                        exit()
+                        print(WARNING, 'Unknown GameServerID type (should be String or QWord)', ENDC, str(actor['attribute']))
 
                 case Action.ProjectX_GRI_X_Reservations:
                     self.actors[actor_id]['reservation'] = actor['attribute']['Reservation']
                 
                 case Action.ProjectX_GRI_X_ReplicatedServerRegion:
-                    self.actors[actor_id]['region'] = actor['attribute']['String']
+                    if 'String' in actor['attribute']:
+                        self.actors[actor_id]['region'] = actor['attribute']['String']
+                    else:
+                        print(WARNING, 'Unknown ReplicatedServerRegion type (should be String)', ENDC, str(actor['attribute']))
 
                 case Action.ProjectX_GRI_X_ReplicatedGamePlaylist:
                     self.actors[actor_id]['game_playlist'] = actor['attribute']['Int']
@@ -410,6 +426,56 @@ class Game:
                 case Action.TAGame_PRI_TA_bIsDistracted:
                     self.actors[actor_id]['is_distracted'] = actor['attribute']['Boolean']
                 
+                case Action.TAGame_Team_TA_Difficulty:
+                    self.actors[actor_id]['difficulty'] = actor['attribute']['Int']
+                
+                case Action.TAGame_Team_TA_CustomTeamName:
+                    self.actors[actor_id]['custom_team_name'] = actor['attribute']['String']
+                
+                case Action.ProjectX_GRI_X_MatchGUID:
+                    self.actors[actor_id]['match_guid'] = actor['attribute']['String']
+                
+                case Action.TAGame_GameEvent_Soccar_TA_SeriesLength:
+                    self.actors[actor_id]['series_length'] = actor['attribute']['Int']
+                
+                case Action.TAGame_CarComponent_Dodge_TA_DodgeImpulse:
+                    self.actors[actor_id]['dodge_impulse_location'] = actor['attribute']['Location']
+
+                case Action.Engine_PlayerReplicationInfo_RemoteUserData:
+                    self.actors[actor_id]['remote_user_data'] = actor['attribute']['String']
+                
+                case Action.TAGame_GameEvent_Soccar_TA_bOverTime:
+                    if actor['attribute']['Boolean']:
+                        self.actors[actor_id]['over_time_at_frame'] = frame_index
+                    else:
+                        print(WARNING + 'Actor ' + str(actor_id) + ' is not in overtime' + ENDC)
+                        exit()
+                
+                case Action.TAGame_GameEvent_Soccar_TA_bClubMatch:
+                    self.actors[actor_id]['club_match'] = actor['attribute']['Boolean']
+                
+                case Action.TAGame_Team_TA_ClubID:
+                    self.actors[actor_id]['club_id'] = actor['attribute']['Int64']
+                
+                case Action.Engine_PlayerReplicationInfo_bBot:
+                    self.actors[actor_id]['is_bot'] = actor['attribute']['Boolean']
+                
+                case Action.TAGame_PRI_TA_BotProductName:
+                    self.actors[actor_id]['bot_product_name'] = actor['attribute']['Int']
+
+                case Action.TAGame_PRI_TA_ClubID:
+                    self.actors[actor_id]['club_id'] = actor['attribute']['Int64']
+                
+                case Action.TAGame_GameEvent_Team_TA_bForfeit:
+                    if actor['attribute']['Boolean']:
+                        self.actors[actor_id]['forfeit_at_frame'] = frame_index
+                    else:
+                        print(WARNING + 'Actor ' + str(actor_id) + ' did not forfeit' + ENDC)
+                        exit()
+                
+                case Action.TAGame_PRI_TA_PlayerHistoryKey:
+                    self.actors[actor_id]['player_history_key'] = actor['attribute']['PlayerHistoryKey']
+
                 case Action.TAGame_GameEvent_TA_MatchTypeClass:
                     # pretty weird event
                     pass
@@ -811,6 +877,10 @@ class Game:
             frame_index - self.shots[-1]['frame_index'] < 15 and \
             self.shots[-1]['player_id'] == player:
             return
+    
+        # check if ball is sleeping
+        if 'sleeping' in self.actors[self.ball_id] and self.actors[self.ball_id]['sleeping']:
+            return
 
         shot = {'frame_index': frame_index, 'time': self.time}
         shot['player_id'] = player
@@ -841,7 +911,7 @@ class Game:
         stats['scores'] = {}
         stats['scores']['Blue'] = 0 if 'Team0Score' not in properties else properties['Team0Score']
         stats['scores']['Orange'] = 0 if 'Team1Score' not in properties else properties['Team1Score']
-        stats['replay_name'] = properties['ReplayName']
+        stats['replay_name'] = None if 'replay_name' not in properties else properties['ReplayName']
         stats['replay_id'] = properties['Id']
         stats['map_name'] = properties['MapName']
         stats['num_frames'] = properties['NumFrames']
@@ -877,7 +947,7 @@ class Game:
                 car_object = self.actors[car_id]
 
                 player['team'] = 'Blue' if car_object['team_paint']['team'] == 0 else 'Orange'
-                player['is_bot'] = 'unknown'
+                player['is_bot'] = True if 'is_bot' in player_object else False
                 match_values = {}
                 values = ['match_shots', 'match_goals', 'match_saves', 'match_assists', 'match_score']
                 for value in values:
@@ -887,25 +957,30 @@ class Game:
                         match_values[value.split('_')[1]] = 0
                 player['match_values'] = match_values
             
-            # ping
-            min_, avg_, max_ = self.get_ping_metrics(player['player_name'])
-            player['ping'] = {'min': min_, 'avg': avg_, 'max': max_}
+            # if player is NO BOT:
+            if not player['is_bot']:
 
-            # platform
-            player['platform'] = list(self.actors[player_id]['unique_id']['remote_id'])[0]
-            match player['platform']:
-                case 'Epic':
-                    player['platform_id'] = self.actors[player_id]['unique_id']['remote_id'][player['platform']]
-                case 'PlayStation':
-                    player['platform_id'] = self.actors[player_id]['unique_id']['remote_id'][player['platform']]['online_id']
-            
-            # things that might not be set
-            unkown_keys = ['mmr', 'title']
-            for key in unkown_keys:
-                if key in self.actors[player_id]:
-                    player[key] = self.actors[player_id][key]
-                else:
-                    player[key] = None
+                # ping
+                min_, avg_, max_ = self.get_ping_metrics(player['player_name'])
+                player['ping'] = {'min': min_, 'avg': avg_, 'max': max_}
+
+                # platform
+                player['platform'] = list(self.actors[player_id]['unique_id']['remote_id'])[0]
+                match player['platform']:
+                    case 'Epic':
+                        player['platform_id'] = self.actors[player_id]['unique_id']['remote_id'][player['platform']]
+                    case 'Xbox':
+                        player['platform_id'] = self.actors[player_id]['unique_id']['remote_id'][player['platform']]
+                    case 'PlayStation':
+                        player['platform_id'] = self.actors[player_id]['unique_id']['remote_id'][player['platform']]['online_id']
+                
+                # things that might not be set
+                unkown_keys = ['mmr', 'title']
+                for key in unkown_keys:
+                    if key in self.actors[player_id]:
+                        player[key] = self.actors[player_id][key]
+                    else:
+                        player[key] = None
             
             stats['players'].append(player)
 
