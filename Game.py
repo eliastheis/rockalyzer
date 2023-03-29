@@ -11,7 +11,7 @@ from Action import Action
 
 class Game:
 
-    def __init__(self, num_frames, object_lookup, name_lookup, debug_info, render):
+    def __init__(self, num_frames, object_lookup, name_lookup, debug_info, render, debug_print=False):
         self.num_frames = num_frames
         self.object_lookup = object_lookup
         self.name_lookup = name_lookup
@@ -20,6 +20,7 @@ class Game:
         self.time = 0.0
         self.current_fps = 0.0
         self.actors = {}
+        self.debug_print = debug_print
 
         # state stuff
         self.player_car_pairs = None
@@ -36,6 +37,24 @@ class Game:
         
         # prepare snapshot
         self.prepare_snapshot()
+
+    
+    def dispose(self):
+        if self.b_render:
+            plt.close()
+        del self.actors
+        del self.player_car_pairs
+        del self.ball_id
+        del self.seconds_remaining
+        del self.frame_index
+        del self.time
+        del self.current_fps
+        del self.debug_print
+        del self.b_render
+        del self.debug_info
+        del self.name_lookup
+        del self.object_lookup
+        del self.num_frames
 
 
 ###############
@@ -88,7 +107,11 @@ class Game:
     def delete_actors(self, actors):
         for actor in actors:
             actor_id = actor
+            object_name = self.actors[actor_id]['object_name']
+            if self.debug_print:
+                print(f'[-] Deleting {object_name} ({actor_id})')
             # TODO: handle parent-objects
+            # without handling the parent-objects, the could a reference to a deleted object
             del self.actors[actor_id]
 
 
@@ -103,9 +126,6 @@ class Game:
             # add readable object_name
             actor['object_name'] = self.object_lookup[object_id]
             actor['name_id_name'] = self.name_lookup[actor['name_id']]
-
-            if object_id == Action.Archetypes_GameEvent_GameEvent_Soccar:
-                actor['frames_with_event'] = [] # temporary
 
             if 'initial_trajectory' in actor:
                 # we take the position and rotation from the initial_trajectory and add it to the actor
@@ -134,7 +154,6 @@ class Game:
                     self.actors[actor_id]['draw_scale'] = actor['attribute']['Float']
 
                 case Action.TAGame_CarComponent_TA_Vehicle:
-                    # add actor_id to list of parent-objects
                     self.actors[actor_id]['parent_ids'].append(actor['attribute']['ActiveActor']['actor'])
                     
                 case Action.TAGame_CarComponent_TA_ReplicatedActive:
@@ -209,16 +228,10 @@ class Game:
                     self.actors[actor_id]['camera_pitch'] = actor['attribute']['Byte']
                 
                 case Action.TAGame_CameraSettingsActor_TA_bMouseCameraToggleEnabled:
-                    if 'Boolean' in actor['attribute']:
-                        self.actors[actor_id]['camera_toggle'] = actor['attribute']['Boolean']
-                    else:
-                        print(WARNING, 'Unknown camera toggle type (should be Boolean)', ENDC, actor['attribute'])
+                    self.actors[actor_id]['camera_toggle'] = actor['attribute']['Boolean']
                 
                 case Action.TAGame_CameraSettingsActor_TA_bUsingSwivel:
-                    if 'Boolean' in actor['attribute']:
-                        self.actors[actor_id]['using_swivel'] = actor['attribute']['Boolean']
-                    else:
-                        print(WARNING, 'Unknown using swivel type (should be Boolean)', ENDC, actor['attribute'])
+                    self.actors[actor_id]['using_swivel'] = actor['attribute']['Boolean']
                 
                 case Action.TAGame_CameraSettingsActor_TA_bUsingBehindView:
                     self.actors[actor_id]['using_behind_view'] = actor['attribute']['Boolean']
@@ -288,6 +301,8 @@ class Game:
                 case Action.TAGame_PRI_TA_ReplicatedGameEvent:
                     other_actor_id = actor['attribute']['ActiveActor']['actor']
                     if other_actor_id != -1:
+                        if 'frames_with_event' not in self.actors[other_actor_id]:
+                            self.actors[other_actor_id]['frames_with_event'] = []
                         self.actors[other_actor_id]['frames_with_event'].append(frame_index)
                 
                 case Action.TAGame_PRI_TA_PlayerHistoryValid:
@@ -306,10 +321,7 @@ class Game:
                     self.actors[actor_id]['server'] = actor['attribute']['String']
                 
                 case Action.ProjectX_GRI_X_MatchGuid:
-                    if 'String' in actor['attribute']:
-                        self.actors[actor_id]['match_guid'] = actor['attribute']['String']
-                    else:
-                        print(WARNING, 'Unknown MatchGuid type (should be String)', ENDC, str(actor['attribute']))
+                    self.actors[actor_id]['match_guid'] = actor['attribute']['String']
                 
                 case Action.ProjectX_GRI_X_bGameStarted:
                     self.actors[actor_id]['game_started'] = actor['attribute']['Boolean']
@@ -321,21 +333,21 @@ class Game:
                         self.actors[actor_id]['server_id'] = actor['attribute']['String']
                     else:
                         print(WARNING, 'Unknown GameServerID type (should be String or QWord)', ENDC, str(actor['attribute']))
+                        exit()
 
                 case Action.ProjectX_GRI_X_Reservations:
                     self.actors[actor_id]['reservation'] = actor['attribute']['Reservation']
                 
                 case Action.ProjectX_GRI_X_ReplicatedServerRegion:
-                    if 'String' in actor['attribute']:
-                        self.actors[actor_id]['region'] = actor['attribute']['String']
-                    else:
-                        print(WARNING, 'Unknown ReplicatedServerRegion type (should be String)', ENDC, str(actor['attribute']))
+                    self.actors[actor_id]['region'] = actor['attribute']['String']
 
                 case Action.ProjectX_GRI_X_ReplicatedGamePlaylist:
                     self.actors[actor_id]['game_playlist'] = actor['attribute']['Int']
                 
                 case Action.TAGame_Team_TA_GameEvent:
                     other_actor_id = actor['attribute']['ActiveActor']['actor']
+                    if 'frames_with_event' not in self.actors[other_actor_id]:
+                        self.actors[other_actor_id]['frames_with_event'] = []
                     self.actors[other_actor_id]['frames_with_event'].append(frame_index)
                 
                 case Action.TAGame_VehiclePickup_TA_NewReplicatedPickupData:
@@ -449,7 +461,7 @@ class Game:
                 case Action.TAGame_GameEvent_Soccar_TA_bOverTime:
                     if actor['attribute']['Boolean']:
                         self.actors[actor_id]['over_time_at_frame'] = frame_index
-                        print(WARNING + 'Overtime!' + ENDC)
+                        print('Overtime!' + ENDC)
                     else:
                         print(WARNING + 'Actor ' + str(actor_id) + ' is not in overtime' + ENDC)
                         exit()
@@ -478,6 +490,51 @@ class Game:
                 
                 case Action.TAGame_PRI_TA_PlayerHistoryKey:
                     self.actors[actor_id]['player_history_key'] = actor['attribute']['PlayerHistoryKey']
+                
+                case Action.Engine_PlayerReplicationInfo_bTimedOut:
+                    if actor['attribute']['Boolean']:
+                        self.actors[actor_id]['timed_out_at_frame'] = frame_index
+                    else:
+                        print(WARNING + 'Actor ' + str(actor_id) + ' did not time out' + ENDC)
+                        exit()
+                
+                case Action.Engine_ReplicatedActor_ORS_ReplicatedOwner:
+                    if 'ActiveActor' not in actor['attribute']:
+                        print(WARNING, 'Unknown Replicated Owner (should be ActiveActor)', ENDC, str(actor['attribute']))
+                        exit()
+                    else:
+                        self.actors[actor_id]['parent_ids'].append(actor['attribute']['ActiveActor']['actor'])
+                
+                case Action.TAGame_MaxTimeWarningData_TA_EndGameWarningEpochTime:
+                    #print(WARNING + 'End game warning at frame ' + str(frame_index) + ENDC)
+                    self.actors[actor_id]['end_game_warning_epoch_time'] = actor['attribute']['Int64']
+                
+                case Action.TAGame_MaxTimeWarningData_TA_EndGameEpochTime:
+                    self.actors[actor_id]['end_game_epoch_time'] = actor['attribute']['Int64']
+                
+                case Action.TAGame_Ball_TA_ReplicatedWorldBounceScale:
+                    self.actors[actor_id]['world_bounce_scale'] = actor['attribute']['Float']
+                
+                case Action.TAGame_PRI_TA_bIsInSplitScreen:
+                    self.actors[actor_id]['is_in_split_screen'] = actor['attribute']['Boolean']
+                
+                case Action.TAGame_RBActor_TA_bReplayActor:
+                    self.actors[actor_id]['is_replay_actor'] = actor['attribute']['Boolean']
+                
+                case Action.TAGame_GameEvent_Soccar_TA_bUnlimitedTime:
+                    if not actor['attribute']['Boolean']:
+                        print(WARNING + 'Actor ' + str(actor_id) + ' is not in unlimited time' + ENDC)
+                        exit()
+                    self.actors[actor_id]['unlimited_time'] = actor['attribute']['Boolean']
+                
+                case Action.TAGame_CarComponent_Boost_TA_UnlimitedBoostRefCount:
+                    self.actors[actor_id]['unlimited_boost_ref_count'] = actor['attribute']['Int']
+                
+                case Action.TAGame_VehiclePickup_TA_bNoPickup:
+                    self.actors[actor_id]['no_pickup'] = actor['attribute']['Boolean']
+                
+                case Action.TAGame_PRI_TA_PawnType:
+                    self.actors[actor_id]['pawn_type'] = actor['attribute']['Byte']
 
                 case Action.TAGame_GameEvent_TA_MatchTypeClass:
                     # pretty weird event
@@ -519,6 +576,8 @@ class Game:
                         pprint(self.actors[reference_id])
                     else:
                         print(WARNING + f'Reference {reference_id} (INVALID)' + ENDC)
+                    
+                    exit()
         
         return event_goal
 
@@ -532,19 +591,19 @@ class Game:
 
         # calculate ball speed (stored in self.hist_ball_speed)
         speed = -1.0
-        if 'linear_velocity' in self.actors[self.ball_id]:
+        if self.ball_id is not None and 'linear_velocity' in self.actors[self.ball_id]:
             linear_velocity = self.actors[self.ball_id]['linear_velocity']
             if linear_velocity is not None:
                 speed = (linear_velocity['x'] ** 2 + linear_velocity['y'] ** 2 + linear_velocity['z'] ** 2) ** 0.5
-        self.actors[self.ball_id]['speed'] = speed
+                self.actors[self.ball_id]['speed'] = speed
         
         # calculate angle of ball velocity (only x and y; stored in hist_ball_angles)
         angle = 0.0
-        if 'linear_velocity' in self.actors[self.ball_id]:
+        if self.ball_id is not None and 'linear_velocity' in self.actors[self.ball_id]:
             linear_velocity = self.actors[self.ball_id]['linear_velocity']
             if linear_velocity is not None:
                 angle = math.atan2(linear_velocity['y'], linear_velocity['x'])
-        self.actors[self.ball_id]['angle'] = angle
+                self.actors[self.ball_id]['angle'] = angle
 
         # calculate car speeds (stored in self.hist_player_speeds)
         for player, car in self.player_car_pairs:
@@ -557,11 +616,15 @@ class Game:
                 self.actors[car]['speed'] = -1.0
         
         # calculate distance between ball and cars (stored in self.hist_player_ball_distances)
-        ball_location = self.actors[self.ball_id]['location']
+        some_big_number = 999999.0
+        if self.ball_id is None:
+            ball_location = {'x': some_big_number, 'y': some_big_number, 'z': some_big_number}
+        else:
+            ball_location = self.actors[self.ball_id]['location']
         for player, car in self.player_car_pairs:
             car_location = self.actors[car]['location']
             car_x, car_y, car_z = car_location['x'], car_location['y'], car_location['z']
-            distance = 999999.0 # some big number
+            distance = some_big_number
             if ball_location is not None and car_location is not None:
                 distance = ((ball_location['x'] - car_x) ** 2 + (ball_location['y'] - car_y) ** 2 + (ball_location['z'] - car_z) ** 2) ** 0.5
             self.actors[car]['distance_to_ball'] = distance
@@ -605,6 +668,7 @@ class Game:
         self.hist_ball_speed_abs_diff = np.full(self.num_frames, -1.0, dtype=np.float32)
         self.hist_ball_angles = np.full(self.num_frames, 0.0, dtype=np.float32)
         self.hist_player_speeds = {}
+        self.hist_player_lineear_velocities = {}
         self.hist_player_ball_distances = {}
         self.hist_ball_linear_velocities = np.full((self.num_frames, 3), -1.0, dtype=np.float32)
         self.hist_ball_linear_velocities_diff_len = np.full(self.num_frames, -1.0, dtype=np.float32)
@@ -627,21 +691,35 @@ class Game:
             self.hist_ping[player_name][frame_index] = ping
 
         # ball speed
-        self.hist_ball_speed[frame_index] = self.actors[self.get_ball()]['speed']
+        if self.ball_id is not None and 'speed' in self.actors[self.ball_id]:
+            self.hist_ball_speed[frame_index] = self.actors[self.get_ball()]['speed']
         if frame_index > 0:
             self.hist_ball_speed_abs_diff[frame_index] = abs(self.hist_ball_speed[frame_index] - self.hist_ball_speed[frame_index-1])
 
         # ball angle
-        self.hist_ball_angles[frame_index] = self.actors[self.get_ball()]['angle']
+        if self.ball_id is not None and 'angle' in self.actors[self.ball_id]:
+            self.hist_ball_angles[frame_index] = self.actors[self.get_ball()]['angle']
 
         # ball linear velocity
-        if 'linear_velocity' in self.actors[self.ball_id]:
+        if self.ball_id is not None and 'linear_velocity' in self.actors[self.ball_id]:
             linear_velocity = self.actors[self.ball_id]['linear_velocity']
             if linear_velocity is not None:
                 self.hist_ball_linear_velocities[frame_index, 0] = linear_velocity['x']
                 self.hist_ball_linear_velocities[frame_index, 1] = linear_velocity['y']
                 self.hist_ball_linear_velocities[frame_index, 2] = linear_velocity['z']
                 self.hist_ball_linear_velocities_diff_len[frame_index] = np.linalg.norm(self.hist_ball_linear_velocities[frame_index] - self.hist_ball_linear_velocities[frame_index-1])
+
+        # player linear velocities
+        for player, car in self.player_car_pairs:
+            player_name = self.actors[player]['player_name']
+            if player_name not in self.hist_player_lineear_velocities:
+                self.hist_player_lineear_velocities[player_name] = np.full((self.num_frames, 3), -1.0, dtype=np.float32)
+            if 'linear_velocity' in self.actors[car]:
+                linear_velocity = self.actors[car]['linear_velocity']
+                if linear_velocity is not None:
+                    self.hist_player_lineear_velocities[player_name][frame_index, 0] = linear_velocity['x']
+                    self.hist_player_lineear_velocities[player_name][frame_index, 1] = linear_velocity['y']
+                    self.hist_player_lineear_velocities[player_name][frame_index, 2] = linear_velocity['z']                
 
         # player speeds
         for player, car in self.player_car_pairs:
@@ -774,14 +852,23 @@ class Game:
     def get_ball(self):
 
         # get all actor_ids from objects with object_id 264
-        ball = [actor_id for actor_id, actor in self.actors.items() if actor['object_id'] == Action.Archetypes_Ball_Ball_Default]
+        ball_types = [
+            Action.Archetypes_Ball_Ball_Default,
+            Action.Archetypes_GameEvent_GameEvent_Basketball,
+            Action.Archetypes_GameEvent_GameEvent_Hockey,
+        ]
+        ball = [actor_id for actor_id, actor in self.actors.items() if actor['object_id'] in ball_types]
 
         if len(ball) == 0:
             return None
         elif len(ball) == 1:
             return ball[0]
         else:
-            print(WARNING + 'There are more than one ball' + ENDC)
+            print(WARNING + 'There is more than one ball' + ENDC)
+            for b in ball:
+                pprint(self.actors[b])
+                print()
+            exit()
             return ball[-1]
     
     
@@ -836,7 +923,7 @@ class Game:
         # return min, avgerage and max ping, while skipping ping values of -1
         pings = [ping for ping in self.hist_ping[player_name] if ping != -1]
         if len(pings) == 0:
-            return None
+            return -1.0, -1.0, -1.0
         return min(pings), sum(pings)/len(pings), max(pings)
 
 
@@ -846,18 +933,27 @@ class Game:
 
 
     def handle_goal(self, frame_index):
+
         # check if goal was scored
         ball_id = self.get_ball()
-        # 1. ball is in goal
+
+        # 1. last goal was more than 3 seconds ago
+        if len(self.goals) > 0 and frame_index - self.goals[-1]['frame_index'] < 3*30:
+            return
+
+        if ball_id is None:
+            print(WARNING + 'Ball not found' + ENDC)
+            self.dump_actors_into_json()
+            exit()
+
+        # 2. ball is in goal
         ball_y = self.actors[ball_id]['location']['y']
         if abs(ball_y) < MAP_WALL_DISTANCE_Y + BALL_RADIUS/2:
             return
     
-        # 2. last goal was more than 3 seconds ago
-        if len(self.goals) > 0 and frame_index - self.goals[-1]['frame_index'] < 3*30:
-            return
+        
     
-        # if for whatever reason the ball does not have a linear_velocity, we plot the history
+        # if for whatever reason the ball does not have a linear_velocity,
         # we look back in history until we find a frame where the ball had a linear_velocity
         if 'linear_velocity' not in self.actors[ball_id]:
             found = False
@@ -899,7 +995,7 @@ class Game:
         # check if ball is sleeping
         if 'sleeping' in self.actors[self.ball_id] and self.actors[self.ball_id]['sleeping']:
             return
-
+    
         shot = {'frame_index': frame_index, 'time': self.time}
         shot['player_id'] = player
         shot['player_name'] = player_name
@@ -1005,6 +1101,10 @@ class Game:
                         player[key] = None
             
             stats['players'].append(player)
+        
+        if 'Goals' not in properties:
+            properties['Goals'] = []
+            print(WARNING + 'No goals in header' + ENDC)
 
         # GOALS
         # check if number of goals in properties is the same as in the goals list
