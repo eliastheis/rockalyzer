@@ -102,6 +102,13 @@ class Action:
     TAGame_VehiclePickup_TA_bNoPickup = -1
     TAGame_CarComponent_Boost_TA_UnlimitedBoostRefCount = -1
     TAGame_PRI_TA_PawnType = -1
+    TAGame_CarComponent_Boost_TA_RechargeDelay = -1
+    TAGame_CarComponent_Boost_TA_RechargeRate = -1
+    TAGame_BreakOutActor_Platform_TA_DamageState = -1
+    TAGame_Ball_Breakout_TA_LastTeamTouch = -1
+    TAGame_PRI_TA_MatchBreakoutDamage = -1
+    TAGame_Ball_Breakout_TA_AppliedDamage = -1
+    TAGame_Ball_Breakout_TA_DamageIndex = -1
     
     Archetypes_Car_Car_Default = -1 # car
     Archetypes_Ball_Ball_Default = -1 # ball
@@ -346,6 +353,20 @@ class Action:
                     Action.TAGame_CarComponent_Boost_TA_UnlimitedBoostRefCount = i
                 case 'TAGame.PRI_TA:PawnType':
                     Action.TAGame_PRI_TA_PawnType = i
+                case 'TAGame.CarComponent_Boost_TA:RechargeDelay':
+                    Action.TAGame_CarComponent_Boost_TA_RechargeDelay = i
+                case 'TAGame.CarComponent_Boost_TA:RechargeRate':
+                    Action.TAGame_CarComponent_Boost_TA_RechargeRate = i
+                case 'TAGame.BreakOutActor_Platform_TA:DamageState':
+                    Action.TAGame_BreakOutActor_Platform_TA_DamageState = i
+                case 'TAGame.Ball_Breakout_TA:LastTeamTouch':
+                    Action.TAGame_Ball_Breakout_TA_LastTeamTouch = i
+                case 'TAGame.PRI_TA:MatchBreakoutDamage':
+                    Action.TAGame_PRI_TA_MatchBreakoutDamage = i
+                case 'TAGame.Ball_Breakout_TA:AppliedDamage':
+                    Action.TAGame_Ball_Breakout_TA_AppliedDamage = i
+                case 'TAGame.Ball_Breakout_TA:DamageIndex':
+                    Action.TAGame_Ball_Breakout_TA_DamageIndex = i
 
 
     @staticmethod
@@ -453,6 +474,14 @@ class Action:
         Action.TAGame_VehiclePickup_TA_bNoPickup = -1
         Action.TAGame_CarComponent_Boost_TA_UnlimitedBoostRefCount = -1
         Action.TAGame_PRI_TA_PawnType = -1
+        Action.TAGame_CarComponent_Boost_TA_RechargeDelay = -1
+        Action.TAGame_CarComponent_Boost_TA_RechargeRate = -1
+        Action.TAGame_BreakOutActor_Platform_TA_DamageState = -1
+        Action.TAGame_Ball_Breakout_TA_LastTeamTouch = -1
+        Action.TAGame_PRI_TA_MatchBreakoutDamage = -1
+        Action.TAGame_Ball_Breakout_TA_AppliedDamage = -1
+        Action.TAGame_Ball_Breakout_TA_DamageIndex = -1
+
         Action.Archetypes_Car_Car_Default = -1 # car
         Action.Archetypes_Ball_Ball_Default = -1 # ball
         Action.TAGame_Default__PRI_TA = -1 # player

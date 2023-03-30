@@ -538,6 +538,28 @@ class Game:
                 case Action.TAGame_PRI_TA_PawnType:
                     self.actors[actor_id]['pawn_type'] = actor['attribute']['Byte']
 
+                case Action.TAGame_CarComponent_Boost_TA_RechargeDelay:
+                    self.actors[actor_id]['recharge_delay'] = actor['attribute']['Float']
+
+                case Action.TAGame_CarComponent_Boost_TA_RechargeRate:
+                    self.actors[actor_id]['recharge_rate'] = actor['attribute']['Float']
+
+                case Action.TAGame_BreakOutActor_Platform_TA_DamageState:
+                    self.actors[actor_id]['damage_state'] = actor['attribute']['DamageState']
+                
+                case Action.TAGame_Ball_Breakout_TA_LastTeamTouch:
+                    self.actors[actor_id]['last_team_touch'] = actor['attribute']['Byte']
+
+                case Action.TAGame_PRI_TA_MatchBreakoutDamage:
+                    self.actors[actor_id]['match_breakout_damage'] = actor['attribute']['Int']
+
+                case Action.TAGame_Ball_Breakout_TA_AppliedDamage:
+                    self.actors[actor_id]['applied_damage'] = actor['attribute']['AppliedDamage']
+                
+                case Action.TAGame_Ball_Breakout_TA_DamageIndex:
+                    self.actors[actor_id]['damage_index'] = actor['attribute']['Int']
+
+
                 case Action.TAGame_GameEvent_TA_MatchTypeClass:
                     # pretty weird event
                     pass
