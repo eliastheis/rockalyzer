@@ -125,6 +125,8 @@ class Action:
     TAGame_SpecialPickup_BallVelcro_TA_bHit = -1
     TAGame_SpecialPickup_BallVelcro_TA_BreakTime = -1
     TAGame_SpecialPickup_BallVelcro_TA_bBroken = -1
+    TAGame_Car_TA_ReplicatedDemolish_CustomFX = -1
+    TAGame_Car_TA_ReplicatedDemolish = -1
     
     Archetypes_Car_Car_Default = -1 # car
     Archetypes_Ball_Ball_Default = -1 # ball
@@ -418,6 +420,10 @@ class Action:
                     Action.TAGame_SpecialPickup_BallVelcro_TA_BreakTime = i
                 case 'TAGame.SpecialPickup_BallVelcro_TA:bBroken':
                     Action.TAGame_SpecialPickup_BallVelcro_TA_bBroken = i
+                case 'TAGame.Car_TA:ReplicatedDemolish_CustomFX':
+                    Action.TAGame_Car_TA_ReplicatedDemolish_CustomFX = i
+                case 'TAGame.Car_TA:ReplicatedDemolish':
+                    Action.TAGame_Car_TA_ReplicatedDemolish = i
 
 
     @staticmethod
@@ -548,6 +554,8 @@ class Action:
         Action.TAGame_SpecialPickup_BallVelcro_TA_bHit = -1
         Action.TAGame_SpecialPickup_BallVelcro_TA_BreakTime = -1
         Action.TAGame_SpecialPickup_BallVelcro_TA_bBroken = -1
+        Action.TAGame_Car_TA_ReplicatedDemolish_CustomFX = -1
+        Action.TAGame_Car_TA_ReplicatedDemolish = -1
 
         Action.Archetypes_Car_Car_Default = -1 # car
         Action.Archetypes_Ball_Ball_Default = -1 # ball

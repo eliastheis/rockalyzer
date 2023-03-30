@@ -621,6 +621,12 @@ class Game:
                 case Action.TAGame_SpecialPickup_BallVelcro_TA_bBroken:
                     # probably spikes?
                     self.actors[actor_id]['broken'] = actor['attribute']['Boolean']
+                
+                case Action.TAGame_Car_TA_ReplicatedDemolish_CustomFX:
+                    self.actors[actor_id]['demolish_custom_fx'] = actor['attribute']['DemolishFx']
+                
+                case Action.TAGame_Car_TA_ReplicatedDemolish:
+                    self.actors[actor_id]['demolish'] = actor['attribute']['Demolish']
 
                 case Action.TAGame_GameEvent_TA_MatchTypeClass:
                     # pretty weird event
