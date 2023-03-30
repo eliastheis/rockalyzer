@@ -927,6 +927,36 @@ class Game:
         return min(pings), sum(pings)/len(pings), max(pings)
 
 
+    def remove_false_goals(self, header_goals):
+        # this function removes false goals from the list of goals
+        # to do that, it iterates over the list of goals and checks if there is a corresponding
+        # goal in the header_goals list. If there is, the goal is kept, otherwise it is removed.
+
+        goal_indices_to_remove = []
+        for i, goal in enumerate(self.goals):
+            frame_index = goal['frame_index']
+            found = False
+            for header_goal in header_goals:
+                # we allow a small margin of error of 10 frames
+                if abs(header_goal['frame'] - frame_index) < 10:
+                    found = True
+                    break
+            if not found:
+                if self.debug_print:
+                    print(f'Removing goal at frame {frame_index}')
+                goal_indices_to_remove.append(i)
+
+        # remove goals from the list of goals in reverse order to avoid index errors
+        for i in reversed(goal_indices_to_remove):
+            self.goals.pop(i)
+
+        # lastly, we check if the number of goals in the header_goals list
+        # is the same as the number of goals in the self.goals list
+        if len(header_goals) != len(self.goals):
+            print(WARNING + 'The number of goals in the header_goals list does not match the number of goals in the self.goals list' + ENDC)
+            exit()
+
+
 #################
 # EVENT HANDLER #
 #################
@@ -947,11 +977,12 @@ class Game:
             exit()
 
         # 2. ball is in goal
+        # the check is designed in such a way that sometimes more goals are detected than there actually are
+        # Later, the false goals can filtered out again relatively easily.
+        # The other way around is much more difficult.
         ball_y = self.actors[ball_id]['location']['y']
-        if abs(ball_y) < MAP_WALL_DISTANCE_Y + BALL_RADIUS/2:
+        if abs(ball_y) < MAP_WALL_DISTANCE_Y:
             return
-    
-        
     
         # if for whatever reason the ball does not have a linear_velocity,
         # we look back in history until we find a frame where the ball had a linear_velocity
@@ -1109,13 +1140,15 @@ class Game:
         # GOALS
         # check if number of goals in properties is the same as in the goals list
         if len(self.goals) != len(properties['Goals']):
-            print(WARNING + f'Number of goals in header ({len(properties["Goals"])}) does not match number of goals in goals list ({len(self.goals)})' + ENDC)
+            if len(properties['Goals']) > len(self.goals):
+                print(WARNING + 'More goals in header than in replay' + ENDC)
+                print(len(properties['Goals']), len(self.goals))
+                pprint(properties['Goals'])
+                print()
+                pprint(self.goals)
+                exit()
+            self.remove_false_goals(properties['Goals'])
 
-            pprint(properties['Goals'])
-            print()
-            pprint(self.goals)
-
-            exit()
         stats['goals'] = []
         for i in range(len(self.goals)):
             goal = {}
