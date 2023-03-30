@@ -11,7 +11,7 @@ from Action import Action
 
 class Game:
 
-    def __init__(self, num_frames, object_lookup, name_lookup, debug_info, render, debug_print=False):
+    def __init__(self, num_frames, object_lookup, name_lookup, debug_info, render, properties, debug_print=False):
         self.num_frames = num_frames
         self.object_lookup = object_lookup
         self.name_lookup = name_lookup
@@ -21,6 +21,8 @@ class Game:
         self.current_fps = 0.0
         self.actors = {}
         self.debug_print = debug_print
+        self.properties = properties
+        self.map_name = properties['MapName']
 
         # state stuff
         self.player_car_pairs = None
@@ -954,6 +956,8 @@ class Game:
         # is the same as the number of goals in the self.goals list
         if len(header_goals) != len(self.goals):
             print(WARNING + 'The number of goals in the header_goals list does not match the number of goals in the self.goals list' + ENDC)
+            print(f'header_goals: {len(header_goals)}')
+            print(f'self.goals: {len(self.goals)}')
             exit()
 
 
@@ -962,26 +966,36 @@ class Game:
 #################
 
 
+    def is_goal(self, frame_index):
+
+        ball_id = self.get_ball()
+
+        # 1. last goal was more than 3 seconds ago
+        if len(self.goals) > 0 and frame_index - self.goals[-1]['frame_index'] < 3*30:
+            return False
+
+        # 2. ball is in goal
+        # we have to distinguish between soccer and hoops
+        if 'hoops' not in self.map_name.lower():
+            # the check is designed in such a way that sometimes more goals are detected than there actually are
+            # Later, the false goals can filtered out again relatively easily.
+            # The other way around is much more difficult.
+            ball_y = self.actors[ball_id]['location']['y']
+            if abs(ball_y) < MAP_WALL_DISTANCE_Y:
+                return False
+        else:
+            # hoops
+            return True
+    
+        return True
+
+
     def handle_goal(self, frame_index):
 
         # check if goal was scored
         ball_id = self.get_ball()
 
-        # 1. last goal was more than 3 seconds ago
-        if len(self.goals) > 0 and frame_index - self.goals[-1]['frame_index'] < 3*30:
-            return
-
-        if ball_id is None:
-            print(WARNING + 'Ball not found' + ENDC)
-            self.dump_actors_into_json()
-            exit()
-
-        # 2. ball is in goal
-        # the check is designed in such a way that sometimes more goals are detected than there actually are
-        # Later, the false goals can filtered out again relatively easily.
-        # The other way around is much more difficult.
-        ball_y = self.actors[ball_id]['location']['y']
-        if abs(ball_y) < MAP_WALL_DISTANCE_Y:
+        if not self.is_goal(frame_index):
             return
     
         # if for whatever reason the ball does not have a linear_velocity,
@@ -993,11 +1007,12 @@ class Game:
                 print(tmp_vel)
                 if tmp_vel[0] != -1.0 and tmp_vel[1] != -1.0 and tmp_vel[2] != -1.0:
                     found = True
+                    print('found', i)
                     self.actors[ball_id]['linear_velocity'] = {'x': tmp_vel[0], 'y': tmp_vel[1], 'z': tmp_vel[2]}
                     break
             if not found:
-                print(WARNING + 'Ball has no linear_velocity' + ENDC)
-                exit()
+                # to avoid errors, we set the linear_velocity to 0
+                self.actors[ball_id]['linear_velocity'] = {'x': 0.0, 'y': 0.0, 'z': 0.0}
     
         # at this point we know that a goal was scored!
         goal = {'frame_index': frame_index, 'time': self.time}
@@ -1006,7 +1021,7 @@ class Game:
         goal['ball_speed'] = ball_speed
 
         speed_kmh = round(ball_speed * UU_TO_KMH_FACTOR, 2)
-        if ball_y > 0:
+        if self.actors[ball_id]['location']['y'] > 0:
             print(OKBLUE + f'Team BLUE scoread a GOAL! Ball speed: {speed_kmh} km/h' + ENDC)
             goal['team_scorer'] = '0'
         else:
