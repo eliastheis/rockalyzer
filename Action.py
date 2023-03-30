@@ -118,6 +118,13 @@ class Action:
     TAGame_Car_TA_AddedCarForceMultiplier = -1
     TAGame_Car_TA_AddedBallForceMultiplier = -1
     TAGame_Car_TA_AddedBallForceMultiplier = -1
+    TAGame_Team_Soccar_TA_GameScore = -1
+    TAGame_RBActor_TA_bIgnoreSyncing = -1
+    TAGame_RBActor_TA_WeldedInfo = -1
+    TAGame_SpecialPickup_BallVelcro_TA_AttachTime = -1
+    TAGame_SpecialPickup_BallVelcro_TA_bHit = -1
+    TAGame_SpecialPickup_BallVelcro_TA_BreakTime = -1
+    TAGame_SpecialPickup_BallVelcro_TA_bBroken = -1
     
     Archetypes_Car_Car_Default = -1 # car
     Archetypes_Ball_Ball_Default = -1 # ball
@@ -397,6 +404,20 @@ class Action:
                     Action.TAGame_Car_TA_AddedBallForceMultiplier = i
                 case 'TAGame.Car_TA:AddedBallForceMultiplier':
                     Action.TAGame_Car_TA_AddedBallForceMultiplier = i
+                case 'TAGame.Team_Soccar_TA:GameScore':
+                    Action.TAGame_Team_Soccar_TA_GameScore = i
+                case 'TAGame.RBActor_TA:bIgnoreSyncing':
+                    Action.TAGame_RBActor_TA_bIgnoreSyncing = i
+                case 'TAGame.RBActor_TA:WeldedInfo':
+                    Action.TAGame_RBActor_TA_WeldedInfo = i
+                case 'TAGame.SpecialPickup_BallVelcro_TA:AttachTime':
+                    Action.TAGame_SpecialPickup_BallVelcro_TA_AttachTime = i
+                case 'TAGame.SpecialPickup_BallVelcro_TA:bHit':
+                    Action.TAGame_SpecialPickup_BallVelcro_TA_bHit = i
+                case 'TAGame.SpecialPickup_BallVelcro_TA:BreakTime':
+                    Action.TAGame_SpecialPickup_BallVelcro_TA_BreakTime = i
+                case 'TAGame.SpecialPickup_BallVelcro_TA:bBroken':
+                    Action.TAGame_SpecialPickup_BallVelcro_TA_bBroken = i
 
 
     @staticmethod
@@ -520,6 +541,13 @@ class Action:
         Action.TAGame_Car_TA_AddedCarForceMultiplier = -1
         Action.TAGame_Car_TA_AddedBallForceMultiplier = -1
         Action.TAGame_Car_TA_AddedBallForceMultiplier = -1
+        Action.TAGame_Team_Soccar_TA_GameScore = -1
+        Action.TAGame_RBActor_TA_bIgnoreSyncing = -1
+        Action.TAGame_RBActor_TA_WeldedInfo = -1
+        Action.TAGame_SpecialPickup_BallVelcro_TA_AttachTime = -1
+        Action.TAGame_SpecialPickup_BallVelcro_TA_bHit = -1
+        Action.TAGame_SpecialPickup_BallVelcro_TA_BreakTime = -1
+        Action.TAGame_SpecialPickup_BallVelcro_TA_bBroken = -1
 
         Action.Archetypes_Car_Car_Default = -1 # car
         Action.Archetypes_Ball_Ball_Default = -1 # ball

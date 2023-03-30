@@ -79,7 +79,7 @@ class Game:
         self.delete_actors(frame['deleted_actors'])
         
         # new actors
-        self.add_actors(frame['new_actors'])
+        self.add_actors(frame['new_actors'], frame_index)
         
         # updated actors
         event_goal = self.update_actors(frame['updated_actors'], frame_index)
@@ -117,13 +117,16 @@ class Game:
             del self.actors[actor_id]
 
 
-    def add_actors(self, actors):
+    def add_actors(self, actors, frame_index):
         for actor in actors:
             actor_id = actor['actor_id']
             object_id = actor['object_id']
 
             # add list of parent-object_ids
             actor['parent_ids'] = []
+
+            # add timestamp of creation
+            actor['created_at_frame'] = frame_index
 
             # add readable object_name
             actor['object_name'] = self.object_lookup[object_id]
@@ -593,6 +596,32 @@ class Game:
                     # IGNORE Rumble stuff
                     pass
 
+                case Action.TAGame_Team_Soccar_TA_GameScore:
+                    self.actors[actor_id]['game_score'] = actor['attribute']['Int']
+
+                case Action.TAGame_RBActor_TA_bIgnoreSyncing:
+                    self.actors[actor_id]['ignore_syncing'] = actor['attribute']['Boolean']
+                
+                case Action.TAGame_RBActor_TA_WeldedInfo:
+                    # probably spikes?
+                    self.actors[actor_id]['welded_info'] = actor['attribute']['Welded']
+                
+                case Action.TAGame_SpecialPickup_BallVelcro_TA_AttachTime:
+                    # probably spikes?
+                    self.actors[actor_id]['attach_time'] = actor['attribute']['Float']
+                
+                case Action.TAGame_SpecialPickup_BallVelcro_TA_bHit:
+                    # probably spikes?
+                    self.actors[actor_id]['hit'] = actor['attribute']['Boolean']
+
+                case Action.TAGame_SpecialPickup_BallVelcro_TA_BreakTime:
+                    # probably spikes?
+                    self.actors[actor_id]['break_time'] = actor['attribute']['Float']
+
+                case Action.TAGame_SpecialPickup_BallVelcro_TA_bBroken:
+                    # probably spikes?
+                    self.actors[actor_id]['broken'] = actor['attribute']['Boolean']
+
                 case Action.TAGame_GameEvent_TA_MatchTypeClass:
                     # pretty weird event
                     pass
@@ -926,10 +955,10 @@ class Game:
             return ball[0]
         else:
             print(WARNING + 'There is more than one ball' + ENDC)
-            for b in ball:
-                pprint(self.actors[b])
-                print()
-            exit()
+            # if there are more than one ball, we choose the latest one (created_at_frame)
+            # sort balls
+            ball = sorted(ball, key=lambda x: self.actors[x]['created_at_frame'])
+            # return ball with highest frame number
             return ball[-1]
     
     
@@ -1028,6 +1057,9 @@ class Game:
     def is_goal(self, frame_index):
 
         ball_id = self.get_ball()
+        if ball_id is None:
+            print(WARNING + 'No ball found' + ENDC)
+            return False
 
         # 1. last goal was more than 3 seconds ago
         if len(self.goals) > 0 and frame_index - self.goals[-1]['frame_index'] < 3*30:
@@ -1063,10 +1095,12 @@ class Game:
             found = False
             for i in range(0, 3*30):
                 tmp_vel = self.hist_ball_linear_velocities[frame_index-i]
-                print(tmp_vel)
+                if self.debug_print:
+                    print(tmp_vel)
                 if tmp_vel[0] != -1.0 and tmp_vel[1] != -1.0 and tmp_vel[2] != -1.0:
                     found = True
-                    print('found', i)
+                    if self.debug_print:
+                        print('found', i)
                     self.actors[ball_id]['linear_velocity'] = {'x': tmp_vel[0], 'y': tmp_vel[1], 'z': tmp_vel[2]}
                     break
             if not found:
@@ -1220,7 +1254,7 @@ class Game:
                 pprint(properties['Goals'])
                 print()
                 pprint(self.goals)
-                exit()
+                raise Exception('More goals in header than in replay')
             self.remove_false_goals(properties['Goals'])
 
         stats['goals'] = []
