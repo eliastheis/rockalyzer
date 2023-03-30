@@ -109,6 +109,15 @@ class Action:
     TAGame_PRI_TA_MatchBreakoutDamage = -1
     TAGame_Ball_Breakout_TA_AppliedDamage = -1
     TAGame_Ball_Breakout_TA_DamageIndex = -1
+    TAGame_PRI_TA_bUsingItems = -1
+    TAGame_RumblePickups_TA_ConcurrentItemCount = -1
+    TAGame_RumblePickups_TA_PickupInfo = -1
+    TAGame_CarComponent_TA_ReplicatedActivityTime = -1
+    TAGame_SpecialPickup_Targeted_TA_Targeted = -1
+    TAGame_SpecialPickup_BallFreeze_TA_RepOrigSpeed = -1
+    TAGame_Car_TA_AddedCarForceMultiplier = -1
+    TAGame_Car_TA_AddedBallForceMultiplier = -1
+    TAGame_Car_TA_AddedBallForceMultiplier = -1
     
     Archetypes_Car_Car_Default = -1 # car
     Archetypes_Ball_Ball_Default = -1 # ball
@@ -119,6 +128,7 @@ class Action:
     TAGame_GameEvent_TA_MatchTypeClass = -1 # weird event
     Engine_GameReplicationInfo_GameClass = -1 # weird event
     TAGame_GameEvent_Soccar_TA_ReplicatedStatEvent = -1 # weird event
+    TAGame_GameEvent_Soccar_TA_SubRulesArchetype = -1 # weird event
 
 
     @staticmethod
@@ -367,6 +377,26 @@ class Action:
                     Action.TAGame_Ball_Breakout_TA_AppliedDamage = i
                 case 'TAGame.Ball_Breakout_TA:DamageIndex':
                     Action.TAGame_Ball_Breakout_TA_DamageIndex = i
+                case 'TAGame.GameEvent_Soccar_TA:SubRulesArchetype':
+                    Action.TAGame_GameEvent_Soccar_TA_SubRulesArchetype = i
+                case 'TAGame.PRI_TA:bUsingItems':
+                    Action.TAGame_PRI_TA_bUsingItems = i
+                case 'TAGame.RumblePickups_TA:ConcurrentItemCount':
+                    Action.TAGame_RumblePickups_TA_ConcurrentItemCount = i
+                case 'TAGame.RumblePickups_TA:PickupInfo':
+                    Action.TAGame_RumblePickups_TA_PickupInfo = i
+                case 'TAGame.CarComponent_TA:ReplicatedActivityTime':
+                    Action.TAGame_CarComponent_TA_ReplicatedActivityTime = i
+                case 'TAGame.SpecialPickup_Targeted_TA:Targeted':
+                    Action.TAGame_SpecialPickup_Targeted_TA_Targeted = i
+                case 'TAGame.SpecialPickup_BallFreeze_TA:RepOrigSpeed':
+                    Action.TAGame_SpecialPickup_BallFreeze_TA_RepOrigSpeed = i
+                case 'TAGame.Car_TA:AddedCarForceMultiplier':
+                    Action.TAGame_Car_TA_AddedCarForceMultiplier = i
+                case 'TAGame.Car_TA:AddedBallForceMultiplier.':
+                    Action.TAGame_Car_TA_AddedBallForceMultiplier = i
+                case 'TAGame.Car_TA:AddedBallForceMultiplier':
+                    Action.TAGame_Car_TA_AddedBallForceMultiplier = i
 
 
     @staticmethod
@@ -481,6 +511,15 @@ class Action:
         Action.TAGame_PRI_TA_MatchBreakoutDamage = -1
         Action.TAGame_Ball_Breakout_TA_AppliedDamage = -1
         Action.TAGame_Ball_Breakout_TA_DamageIndex = -1
+        Action.TAGame_PRI_TA_bUsingItems = -1
+        Action.TAGame_RumblePickups_TA_ConcurrentItemCount = -1
+        Action.TAGame_RumblePickups_TA_PickupInfo = -1
+        Action.TAGame_CarComponent_TA_ReplicatedActivityTime = -1
+        Action.TAGame_SpecialPickup_Targeted_TA_Targeted = -1
+        Action.TAGame_SpecialPickup_BallFreeze_TA_RepOrigSpeed = -1
+        Action.TAGame_Car_TA_AddedCarForceMultiplier = -1
+        Action.TAGame_Car_TA_AddedBallForceMultiplier = -1
+        Action.TAGame_Car_TA_AddedBallForceMultiplier = -1
 
         Action.Archetypes_Car_Car_Default = -1 # car
         Action.Archetypes_Ball_Ball_Default = -1 # ball
@@ -490,3 +529,4 @@ class Action:
         Action.TAGame_GameEvent_TA_MatchTypeClass = -1 # weird event
         Action.Engine_GameReplicationInfo_GameClass = -1 # weird event
         Action.TAGame_GameEvent_Soccar_TA_ReplicatedStatEvent = -1 # weird event
+        Action.TAGame_GameEvent_Soccar_TA_SubRulesArchetype = -1 # weird event

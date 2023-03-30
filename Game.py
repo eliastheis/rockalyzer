@@ -559,6 +559,39 @@ class Game:
                 case Action.TAGame_Ball_Breakout_TA_DamageIndex:
                     self.actors[actor_id]['damage_index'] = actor['attribute']['Int']
 
+                case Action.TAGame_PRI_TA_bUsingItems:
+                    self.actors[actor_id]['using_items'] = actor['attribute']['Boolean']
+
+                case Action.TAGame_RumblePickups_TA_ConcurrentItemCount:
+                    self.actors[actor_id]['concurrent_item_count'] = actor['attribute']['Int']
+                
+                case Action.TAGame_RumblePickups_TA_PickupInfo:
+                    pickup_info = actor['attribute']['PickupInfo']
+                    # IGNORE Rumble stuff
+                
+                case Action.TAGame_CarComponent_TA_ReplicatedActivityTime:
+                    # probably Rumble stuff
+                    self.actors[actor_id]['replicated_activity_time'] = actor['attribute']['Float']
+                
+                case Action.TAGame_SpecialPickup_Targeted_TA_Targeted:
+                    # IGNORE Rumble stuff
+                    pass
+            
+                case Action.TAGame_SpecialPickup_BallFreeze_TA_RepOrigSpeed:
+                    # IGNORE Rumble stuff
+                    pass
+
+                case Action.TAGame_Car_TA_AddedCarForceMultiplier:
+                    # IGNORE Rumble stuff
+                    pass
+            
+                case Action.TAGame_Car_TA_AddedBallForceMultiplier:
+                    # IGNORE Rumble stuff
+                    pass
+            
+                case Action.TAGame_Car_TA_AddedBallForceMultiplier:
+                    # IGNORE Rumble stuff
+                    pass
 
                 case Action.TAGame_GameEvent_TA_MatchTypeClass:
                     # pretty weird event
@@ -569,6 +602,10 @@ class Game:
                     pass
             
                 case Action.TAGame_GameEvent_Soccar_TA_ReplicatedStatEvent:
+                    # pretty weird event
+                    pass
+
+                case Action.TAGame_GameEvent_Soccar_TA_SubRulesArchetype:
                     # pretty weird event
                     pass
             
