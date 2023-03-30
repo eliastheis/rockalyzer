@@ -2,6 +2,8 @@ from json import load as json_load
 from pprint import pprint
 from time import perf_counter
 from matplotlib import pyplot as plt
+import os
+import gc
 
 from console_colors import *
 from constants import *
@@ -18,13 +20,13 @@ class Replayer:
         print(HEADER + f'[+] Start Replaying "{self.file_name}"' + ENDC)
 
         # load json content
-        with open(self.file_name, 'r') as f:
+        with open(self.file_name, mode='r', encoding='utf-8') as f:
             self.json_content = json_load(f)
         self.object_lookup = self.json_content['objects']
         self.name_lookup = self.json_content['names']
 
         # prepare game object
-        self.game = Game(len(self.json_content['network_frames']['frames']), self.object_lookup, self.name_lookup, self.json_content['debug_info'], self.render)
+        self.game = Game(self.json_content, self.render)
     
         # print simple header
         self.print_header_info()
@@ -36,7 +38,7 @@ class Replayer:
     def print_header_info(self):
 
         prop = self.json_content['properties']
-        replay_name = prop['ReplayName']
+        replay_name = None if 'ReplayName' not in prop else prop['ReplayName']
         date = prop['Date']
         team_size = prop['TeamSize']
         fps = prop['RecordFPS']
@@ -117,22 +119,33 @@ class Replayer:
         return self.game.get_stats(self.json_content['properties'])
 
 
+    def dispose(self):
+        # delete all objects
+        del self.game
+        del self.json_content
+        del self.object_lookup
+        del self.name_lookup
+        gc.collect()
+
+
+def file_generator(folder):
+    for entry in os.scandir(folder):
+        if entry.is_file():
+            yield entry.path
+
+
 if __name__ == '__main__':
 
-    # load replay file
-    replayer = Replayer('replays/replay.json', render=False)
+    # iterate over all files in folder
+    for i, file in enumerate(file_generator('RocketLeagueReplays/json')):
 
-    # replay
-    replayer.replay()
+        print(HEADER, i, ENDC)
+        replayer = Replayer(file, render=False)
+        replayer.replay()
+        stats = replayer.get_stats()
+        replayer.dispose()
 
-    # get and print stats
-    stats = replayer.get_stats()
-    print(HEADER + '\n=== Stats ===' + ENDC)
-    for key in stats:
-        print(OKGREEN + f' {key}: \t{str(stats[key])[:50]}' + ENDC)
-
-    print(OKGREEN + '\nGoals:' + ENDC)
-    pprint(stats['goals'])
-
-    print(OKGREEN + 'Players:' + ENDC)
-    pprint(stats['players'])
+        # delete all objects
+        del replayer
+        del stats
+        gc.collect()

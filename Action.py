@@ -142,6 +142,11 @@ class Action:
 
     @staticmethod
     def set_values(objects):
+
+        # reset all values
+        # if we don't do this, we'll get a lot of false positives
+        Action.reset()
+
         for i, obj in enumerate(objects):
             match obj:
                 case 'Engine.Actor:RemoteRole':

@@ -11,18 +11,18 @@ from Action import Action
 
 class Game:
 
-    def __init__(self, num_frames, object_lookup, name_lookup, debug_info, render, properties, debug_print=False):
-        self.num_frames = num_frames
-        self.object_lookup = object_lookup
-        self.name_lookup = name_lookup
-        self.debug_info = debug_info
+    def __init__(self, json_content, render, debug_print=False):
+        self.num_frames = len(json_content['network_frames']['frames'])
+        self.object_lookup = json_content['objects']
+        self.name_lookup = json_content['names']
+        self.debug_info = json_content['debug_info']
         self.b_render = render
         self.time = 0.0
         self.current_fps = 0.0
         self.actors = {}
         self.debug_print = debug_print
-        self.properties = properties
-        self.map_name = properties['MapName']
+        self.properties = json_content['properties']
+        self.map_name = self.properties['MapName']
 
         # state stuff
         self.player_car_pairs = None
@@ -79,27 +79,27 @@ class Game:
         self.delete_actors(frame['deleted_actors'])
         
         # new actors
-        self.add_actors(frame['new_actors'], frame_index)
+        self.add_actors(frame['new_actors'])
         
         # updated actors
-        event_goal = self.update_actors(frame['updated_actors'], frame_index)
+        event_goal = self.update_actors(frame['updated_actors'])
 
         # handle all events
         if event_goal:
-            self.handle_goal(frame_index)
+            self.handle_goal()
 
         # find objects
         self.player_car_pairs = self.get_player_car_pairs()
         self.ball_id = self.get_ball()
     
         # calculate stuff
-        self.calculate_stuff(frame_index)
+        self.calculate_stuff()
 
         # snapshot values
-        self.snapshot_values(frame_index)
+        self.snapshot_values()
 
         # check for events
-        self.check_for_events(frame_index)
+        self.check_for_events()
 
         #if frame_index == 4900: # (first goal)
         #    self.dump_actors_into_json()
@@ -117,7 +117,7 @@ class Game:
             del self.actors[actor_id]
 
 
-    def add_actors(self, actors, frame_index):
+    def add_actors(self, actors):
         for actor in actors:
             actor_id = actor['actor_id']
             object_id = actor['object_id']
@@ -126,7 +126,7 @@ class Game:
             actor['parent_ids'] = []
 
             # add timestamp of creation
-            actor['created_at_frame'] = frame_index
+            actor['created_at_frame'] = self.frame_index
 
             # add readable object_name
             actor['object_name'] = self.object_lookup[object_id]
@@ -141,7 +141,7 @@ class Game:
             self.actors[actor_id] = actor
 
 
-    def update_actors(self, actors, frame_index):
+    def update_actors(self, actors):
 
         # events
         event_goal = False
@@ -308,7 +308,7 @@ class Game:
                     if other_actor_id != -1:
                         if 'frames_with_event' not in self.actors[other_actor_id]:
                             self.actors[other_actor_id]['frames_with_event'] = []
-                        self.actors[other_actor_id]['frames_with_event'].append(frame_index)
+                        self.actors[other_actor_id]['frames_with_event'].append(self.frame_index)
                 
                 case Action.TAGame_PRI_TA_PlayerHistoryValid:
                     self.actors[actor_id]['player_history_valid'] = actor['attribute']['Boolean']
@@ -353,7 +353,7 @@ class Game:
                     other_actor_id = actor['attribute']['ActiveActor']['actor']
                     if 'frames_with_event' not in self.actors[other_actor_id]:
                         self.actors[other_actor_id]['frames_with_event'] = []
-                    self.actors[other_actor_id]['frames_with_event'].append(frame_index)
+                    self.actors[other_actor_id]['frames_with_event'].append(self.frame_index)
                 
                 case Action.TAGame_VehiclePickup_TA_NewReplicatedPickupData:
                     instigator_id = actor['attribute']['PickupNew']['instigator']
@@ -416,7 +416,7 @@ class Game:
                     if actor['attribute']['Boolean'] != True:
                         print(WARNING + 'Actor ' + str(actor_id) + ' is not hidden' + ENDC)
                         exit()
-                    self.actors[actor_id]['hidden_since_frame'] = frame_index
+                    self.actors[actor_id]['hidden_since_frame'] = self.frame_index
                 
                 case Action.TAGame_PRI_TA_bReady:
                     self.actors[actor_id]['ready'] = actor['attribute']['Boolean']
@@ -465,7 +465,7 @@ class Game:
                 
                 case Action.TAGame_GameEvent_Soccar_TA_bOverTime:
                     if actor['attribute']['Boolean']:
-                        self.actors[actor_id]['over_time_at_frame'] = frame_index
+                        self.actors[actor_id]['over_time_at_frame'] = self.frame_index
                         print('Overtime!' + ENDC)
                     else:
                         print(WARNING + 'Actor ' + str(actor_id) + ' is not in overtime' + ENDC)
@@ -488,7 +488,7 @@ class Game:
                 
                 case Action.TAGame_GameEvent_Team_TA_bForfeit:
                     if actor['attribute']['Boolean']:
-                        self.actors[actor_id]['forfeit_at_frame'] = frame_index
+                        self.actors[actor_id]['forfeit_at_frame'] = self.frame_index
                     else:
                         print(WARNING + 'Actor ' + str(actor_id) + ' did not forfeit' + ENDC)
                         exit()
@@ -498,7 +498,7 @@ class Game:
                 
                 case Action.Engine_PlayerReplicationInfo_bTimedOut:
                     if actor['attribute']['Boolean']:
-                        self.actors[actor_id]['timed_out_at_frame'] = frame_index
+                        self.actors[actor_id]['timed_out_at_frame'] = self.frame_index
                     else:
                         print(WARNING + 'Actor ' + str(actor_id) + ' did not time out' + ENDC)
                         exit()
@@ -683,7 +683,7 @@ class Game:
 ###############
 
 
-    def calculate_stuff(self, frame_index):
+    def calculate_stuff(self):
 
         # calculate ball speed (stored in self.hist_ball_speed)
         speed = -1.0
@@ -726,7 +726,7 @@ class Game:
             self.actors[car]['distance_to_ball'] = distance
         
         
-    def check_for_events(self, frame_index):
+    def check_for_events(self):
         # check for collisions between ball and cars
         # rules for collisions:
         # 1.    change in ball speed is greater than <BALL_HIT_BALL_SPEED>
@@ -735,22 +735,22 @@ class Game:
         # 2. distance between ball and car is less than <BALL_HIT_CAR_TO_BALL_DISTANCE>
         # 3. car is not demolished
         # since the change of ball speed is lagged by 1 frame, we need to check the previous frame
-        if frame_index > 0:
-            if self.hist_ball_speed_abs_diff[frame_index] >= BALL_HIT_BALL_SPEED or \
-                self.hist_ball_linear_velocities_diff_len[frame_index] >= BALL_HIT_BALL_ANGLE_CHANGE_THRESHOLD:
+        if self.frame_index > 0:
+            if self.hist_ball_speed_abs_diff[self.frame_index] >= BALL_HIT_BALL_SPEED or \
+                self.hist_ball_linear_velocities_diff_len[self.frame_index] >= BALL_HIT_BALL_ANGLE_CHANGE_THRESHOLD:
                 player_car_dist_tuples = []
                 for player, car in self.player_car_pairs:
                     player_name = self.actors[player]['player_name']
-                    if self.hist_player_ball_distances[player_name][frame_index] <= BALL_HIT_CAR_TO_BALL_DISTANCE:
+                    if self.hist_player_ball_distances[player_name][self.frame_index] <= BALL_HIT_CAR_TO_BALL_DISTANCE:
                         # we have potential collision
                         # lastly, we check if the car is not demolished
                         if 'hidden_since_frame' not in self.actors[car]:
-                            player_car_dist_tuples.append((player_name, player, car, self.hist_player_ball_distances[player_name][frame_index]))
+                            player_car_dist_tuples.append((player_name, player, car, self.hist_player_ball_distances[player_name][self.frame_index]))
                 if len(player_car_dist_tuples) > 0:
                     # sort by distance
                     player_car_dist_tuples.sort(key=lambda x: x[3])
                     player_name, player, car, _ = player_car_dist_tuples[0]
-                    self.handle_ball_hit(player_name, player, car, frame_index)
+                    self.handle_ball_hit(player_name, player, car)
                               
 
     def prepare_snapshot(self):
@@ -771,10 +771,10 @@ class Game:
         self.hist_ping = {}
         
 
-    def snapshot_values(self, frame_index):
+    def snapshot_values(self):
 
         # seconds remaining
-        self.hist_seconds_remaining[frame_index] = self.seconds_remaining
+        self.hist_seconds_remaining[self.frame_index] = self.seconds_remaining
 
         # ping
         for player, _ in self.player_car_pairs:
@@ -784,26 +784,26 @@ class Game:
                 self.hist_ping[player_name] = np.full(self.num_frames, -1.0, dtype=np.int32)
             if 'ping' in self.actors[player]:
                 ping = self.actors[player]['ping']
-            self.hist_ping[player_name][frame_index] = ping
+            self.hist_ping[player_name][self.frame_index] = ping
 
         # ball speed
         if self.ball_id is not None and 'speed' in self.actors[self.ball_id]:
-            self.hist_ball_speed[frame_index] = self.actors[self.get_ball()]['speed']
-        if frame_index > 0:
-            self.hist_ball_speed_abs_diff[frame_index] = abs(self.hist_ball_speed[frame_index] - self.hist_ball_speed[frame_index-1])
+            self.hist_ball_speed[self.frame_index] = self.actors[self.get_ball()]['speed']
+        if self.frame_index > 0:
+            self.hist_ball_speed_abs_diff[self.frame_index] = abs(self.hist_ball_speed[self.frame_index] - self.hist_ball_speed[self.frame_index-1])
 
         # ball angle
         if self.ball_id is not None and 'angle' in self.actors[self.ball_id]:
-            self.hist_ball_angles[frame_index] = self.actors[self.get_ball()]['angle']
+            self.hist_ball_angles[self.frame_index] = self.actors[self.get_ball()]['angle']
 
         # ball linear velocity
         if self.ball_id is not None and 'linear_velocity' in self.actors[self.ball_id]:
             linear_velocity = self.actors[self.ball_id]['linear_velocity']
             if linear_velocity is not None:
-                self.hist_ball_linear_velocities[frame_index, 0] = linear_velocity['x']
-                self.hist_ball_linear_velocities[frame_index, 1] = linear_velocity['y']
-                self.hist_ball_linear_velocities[frame_index, 2] = linear_velocity['z']
-                self.hist_ball_linear_velocities_diff_len[frame_index] = np.linalg.norm(self.hist_ball_linear_velocities[frame_index] - self.hist_ball_linear_velocities[frame_index-1])
+                self.hist_ball_linear_velocities[self.frame_index, 0] = linear_velocity['x']
+                self.hist_ball_linear_velocities[self.frame_index, 1] = linear_velocity['y']
+                self.hist_ball_linear_velocities[self.frame_index, 2] = linear_velocity['z']
+                self.hist_ball_linear_velocities_diff_len[self.frame_index] = np.linalg.norm(self.hist_ball_linear_velocities[self.frame_index] - self.hist_ball_linear_velocities[self.frame_index-1])
 
         # player linear velocities
         for player, car in self.player_car_pairs:
@@ -813,23 +813,23 @@ class Game:
             if 'linear_velocity' in self.actors[car]:
                 linear_velocity = self.actors[car]['linear_velocity']
                 if linear_velocity is not None:
-                    self.hist_player_lineear_velocities[player_name][frame_index, 0] = linear_velocity['x']
-                    self.hist_player_lineear_velocities[player_name][frame_index, 1] = linear_velocity['y']
-                    self.hist_player_lineear_velocities[player_name][frame_index, 2] = linear_velocity['z']                
+                    self.hist_player_lineear_velocities[player_name][self.frame_index, 0] = linear_velocity['x']
+                    self.hist_player_lineear_velocities[player_name][self.frame_index, 1] = linear_velocity['y']
+                    self.hist_player_lineear_velocities[player_name][self.frame_index, 2] = linear_velocity['z']                
 
         # player speeds
         for player, car in self.player_car_pairs:
             player_name = self.actors[player]['player_name']
             if player_name not in self.hist_player_speeds:
                 self.hist_player_speeds[player_name] = np.full(self.num_frames, -1.0, dtype=np.float32)
-            self.hist_player_speeds[player_name][frame_index] = self.actors[car]['speed']
+            self.hist_player_speeds[player_name][self.frame_index] = self.actors[car]['speed']
         
         # player to ball distances
         for player, car in self.player_car_pairs:
             player_name = self.actors[player]['player_name']
             if player_name not in self.hist_player_ball_distances:
                 self.hist_player_ball_distances[player_name] = np.full(self.num_frames, -1.0, dtype=np.float32)
-            self.hist_player_ball_distances[player_name][frame_index] = self.actors[car]['distance_to_ball']
+            self.hist_player_ball_distances[player_name][self.frame_index] = self.actors[car]['distance_to_ball']
         
 
 ################
@@ -1087,12 +1087,12 @@ class Game:
         return True
 
 
-    def handle_goal(self, frame_index):
+    def handle_goal(self):
 
         # check if goal was scored
         ball_id = self.get_ball()
 
-        if not self.is_goal(frame_index):
+        if not self.is_goal(self.frame_index):
             return
     
         # if for whatever reason the ball does not have a linear_velocity,
@@ -1100,7 +1100,7 @@ class Game:
         if 'linear_velocity' not in self.actors[ball_id]:
             found = False
             for i in range(0, 3*30):
-                tmp_vel = self.hist_ball_linear_velocities[frame_index-i]
+                tmp_vel = self.hist_ball_linear_velocities[self.frame_index-i]
                 if self.debug_print:
                     print(tmp_vel)
                 if tmp_vel[0] != -1.0 and tmp_vel[1] != -1.0 and tmp_vel[2] != -1.0:
@@ -1114,7 +1114,7 @@ class Game:
                 self.actors[ball_id]['linear_velocity'] = {'x': 0.0, 'y': 0.0, 'z': 0.0}
     
         # at this point we know that a goal was scored!
-        goal = {'frame_index': frame_index, 'time': self.time}
+        goal = {'frame_index': self.frame_index, 'time': self.time}
         linear_velocity = self.actors[ball_id]['linear_velocity']
         ball_speed = math.sqrt(linear_velocity['x']**2 + linear_velocity['y']**2 + linear_velocity['z']**2)
         goal['ball_speed'] = ball_speed
@@ -1130,10 +1130,10 @@ class Game:
         self.goals.append(goal)
 
 
-    def handle_ball_hit(self, player_name, player, car, frame_index):
+    def handle_ball_hit(self, player_name, player, car):
         # check if event is a duplicate (shot should at least be 15 frames apart)
         if len(self.shots) > 0 and \
-            frame_index - self.shots[-1]['frame_index'] < 15 and \
+            self.frame_index - self.shots[-1]['frame_index'] < 15 and \
             self.shots[-1]['player_id'] == player:
             return
     
@@ -1141,7 +1141,7 @@ class Game:
         if 'sleeping' in self.actors[self.ball_id] and self.actors[self.ball_id]['sleeping']:
             return
     
-        shot = {'frame_index': frame_index, 'time': self.time}
+        shot = {'frame_index': self.frame_index, 'time': self.time}
         shot['player_id'] = player
         shot['player_name'] = player_name
         shot['car_id'] = car
