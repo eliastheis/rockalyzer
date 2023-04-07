@@ -11,7 +11,7 @@ from Action import Action
 
 class Game:
 
-    def __init__(self, json_content, render, debug_print=False):
+    def __init__(self, json_content, render, debug_print=False, event_print=False):
         self.num_frames = len(json_content['network_frames']['frames'])
         self.object_lookup = json_content['objects']
         self.name_lookup = json_content['names']
@@ -23,6 +23,7 @@ class Game:
         self.debug_print = debug_print
         self.properties = json_content['properties']
         self.map_name = self.properties['MapName']
+        self.event_print = event_print
 
         # state stuff
         self.player_car_pairs = None
@@ -466,7 +467,8 @@ class Game:
                 case Action.TAGame_GameEvent_Soccar_TA_bOverTime:
                     if actor['attribute']['Boolean']:
                         self.actors[actor_id]['over_time_at_frame'] = self.frame_index
-                        print('Overtime!' + ENDC)
+                        if self.event_print:
+                            print('Overtime!' + ENDC)
                     else:
                         print(WARNING + 'Actor ' + str(actor_id) + ' is not in overtime' + ENDC)
                         exit()
@@ -673,7 +675,8 @@ class Game:
                     else:
                         print(WARNING + f'Reference {reference_id} (INVALID)' + ENDC)
                     
-                    exit()
+                    #exit()
+                    raise Exception('Unknown event')
         
         return event_goal
 
@@ -960,7 +963,8 @@ class Game:
         elif len(ball) == 1:
             return ball[0]
         else:
-            print(WARNING + 'There is more than one ball' + ENDC)
+            if self.debug_print:
+                print(WARNING + 'There is more than one ball' + ENDC)
             # if there are more than one ball, we choose the latest one (created_at_frame)
             # sort balls
             ball = sorted(ball, key=lambda x: self.actors[x]['created_at_frame'])
@@ -1020,7 +1024,7 @@ class Game:
         pings = [ping for ping in self.hist_ping[player_name] if ping != -1]
         if len(pings) == 0:
             return -1.0, -1.0, -1.0
-        return min(pings), sum(pings)/len(pings), max(pings)
+        return float(min(pings)), float(round(sum(pings)/len(pings), 2)), float(max(pings))
 
 
     def remove_false_goals(self, header_goals):
@@ -1049,10 +1053,11 @@ class Game:
         # lastly, we check if the number of goals in the header_goals list
         # is the same as the number of goals in the self.goals list
         if len(header_goals) != len(self.goals):
-            print(WARNING + 'The number of goals in the header_goals list does not match the number of goals in the self.goals list' + ENDC)
-            print(f'header_goals: {len(header_goals)}')
-            print(f'self.goals: {len(self.goals)}')
-            exit()
+            if self.debug_print:
+                print(WARNING + 'The number of goals in the header_goals list does not match the number of goals in the self.goals list' + ENDC)
+                print(f'header_goals: {len(header_goals)}')
+                print(f'self.goals: {len(self.goals)}')
+            raise Exception('The number of goals in the header_goals list does not match the number of goals in the self.goals list')
 
 
 #################
@@ -1064,7 +1069,8 @@ class Game:
 
         ball_id = self.get_ball()
         if ball_id is None:
-            print(WARNING + 'No ball found' + ENDC)
+            if self.debug_print:
+                print(WARNING + 'No ball found' + ENDC)
             return False
 
         # 1. last goal was more than 3 seconds ago
@@ -1121,10 +1127,12 @@ class Game:
 
         speed_kmh = round(ball_speed * UU_TO_KMH_FACTOR, 2)
         if self.actors[ball_id]['location']['y'] > 0:
-            print(OKBLUE + f'Team BLUE scoread a GOAL! Ball speed: {speed_kmh} km/h' + ENDC)
+            if self.event_print:
+                print(OKBLUE + f'Team BLUE scoread a GOAL! Ball speed: {speed_kmh} km/h' + ENDC)
             goal['team_scorer'] = '0'
         else:
-            print(OKRED + f'Team ORANGE scoread a GOAL! Ball speed: {speed_kmh} km/h' + ENDC)
+            if self.event_print:
+                print(OKRED + f'Team ORANGE scoread a GOAL! Ball speed: {speed_kmh} km/h' + ENDC)
             goal['team_scorer'] = '1'
         
         self.goals.append(goal)
@@ -1151,7 +1159,8 @@ class Game:
         shot['ball_location'] = self.actors[self.ball_id]['location']
         shot['ball_linear_velocity'] = self.actors[self.ball_id]['linear_velocity']
         self.shots.append(shot)
-        print(OKGREEN + f'Player {player_name} hit the ball' + ENDC)
+        if self.event_print:
+            print(OKGREEN + f'Player {player_name} hit the ball' + ENDC)
 
 
 #########
@@ -1249,17 +1258,19 @@ class Game:
         
         if 'Goals' not in properties:
             properties['Goals'] = []
-            print(WARNING + 'No goals in header' + ENDC)
+            if self.event_print:
+                print(WARNING + 'No goals in header' + ENDC)
 
         # GOALS
         # check if number of goals in properties is the same as in the goals list
         if len(self.goals) != len(properties['Goals']):
             if len(properties['Goals']) > len(self.goals):
-                print(WARNING + 'More goals in header than in replay' + ENDC)
-                print(len(properties['Goals']), len(self.goals))
-                pprint(properties['Goals'])
-                print()
-                pprint(self.goals)
+                if self.event_print:
+                    print(WARNING + 'More goals in header than in replay' + ENDC)
+                    print(len(properties['Goals']), len(self.goals))
+                    pprint(properties['Goals'])
+                    print()
+                    pprint(self.goals)
                 raise Exception('More goals in header than in replay')
             self.remove_false_goals(properties['Goals'])
 
