@@ -17,7 +17,7 @@ class Replayer:
 
         self.file_name = file_name
         self.render = render
-        print(HEADER + f'[+] Start Replaying "{self.file_name}"' + ENDC)
+        #print(HEADER + f'[+] Start Replaying "{self.file_name}"' + ENDC)
 
         # load json content
         with open(self.file_name, mode='r', encoding='utf-8') as f:
@@ -27,13 +27,13 @@ class Replayer:
 
         # prepare game object
         self.game = Game(self.json_content, self.render)
-    
+
         # print simple header
-        self.print_header_info()
+        #self.print_header_info()
 
         # load actions
         Action.set_values(self.json_content['objects'])
-    
+
 
     def print_header_info(self):
 
@@ -95,12 +95,12 @@ class Replayer:
             else:
                 print(OKCYAN, end='')
             print(f' {elapsed_time // 60:02.0f}:{elapsed_time % 60:02.0f} {description}' + ENDC)
-            
+
 
     def replay(self):
 
         start_time = perf_counter()
-        
+
         frames = self.json_content['network_frames']['frames']
         for i, frame in enumerate(frames):
 
@@ -110,11 +110,11 @@ class Replayer:
             # render game
             if self.render:
                 self.game.render()
-        
+
         diff = perf_counter() - start_time
-        print(HEADER + f'\n[+] Finished Replaying "{self.file_name}" in {diff:.3f} seconds' + ENDC)
-        
-    
+        #print(HEADER + f'\n[+] Finished Replaying "{self.file_name}" in {diff:.3f} seconds' + ENDC)
+
+
     def get_stats(self):
         return self.game.get_stats(self.json_content['properties'])
 
