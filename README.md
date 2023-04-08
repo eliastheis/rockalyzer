@@ -1,4 +1,4 @@
-# Rocket League Boxcars Replayer
+# Rocket League Boxcars-Replay Analyzer
 Here will be the documentation
 
 ## Installation
