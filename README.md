@@ -47,7 +47,7 @@ stats = replayer.get_stats()
 
 ### Simple render
 If you set `render=True` when creating the `Replayer`-object, you get a simple (almost real-time) render of the game using [matplotlib](https://matplotlib.org/)
-![Screenshot of render](render_screenshot.png)
+![Screenshot of render](https://raw.githubusercontent.com/eliastheis/rockalyzer/master/render_screenshot.png)
 
 ## Build and upload package to PyPi
 ```python
