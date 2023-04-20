@@ -12,10 +12,10 @@
   - map-name
 - Extract info about **players**
   - name, scores, goals, saves, assists, shots
-  - platform (`Steam`, `PlayStation`, `PsyNet` and `Xbox`) and unique platform_id
-  - mmr, if available (using [BakkesMod](https://bakkesmod.com/index.php))
+  - platform (`Steam`, `PlayStation`, `PsyNet`, and `Xbox`) and unique platform_id
+  - MMR, if available (using [BakkesMod](https://bakkesmod.com/index.php))
   - title
-  - ping (including min, max, average)
+  - ping (including min, max, and average)
 - Extract info about **goals**
   - when, where, who
   - ball speed (in km/h)
@@ -35,7 +35,7 @@ Make sure you parsed the replay to a json file first using one of the tools ment
 ```python
 from rockalyzer import Replayer
 
-# load replay as json file and set render mode
+# load replay as JSON file and set render mode
 replayer = Replayer('path/to/replay.json', render=True)
 
 # replay file
@@ -46,7 +46,7 @@ stats = replayer.get_stats()
 ```
 
 ### Simple render
-If you set `render=True` when creating the `Replayer`-object, you get a simple (almost realtime) render of the game using [matplotlib](https://matplotlib.org/)
+If you set `render=True` when creating the `Replayer`-object, you get a simple (almost real-time) render of the game using [matplotlib](https://matplotlib.org/)
 ![Screenshot of render](render_screenshot.png)
 
 ## Build and upload package to PyPi
