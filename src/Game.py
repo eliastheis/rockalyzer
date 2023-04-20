@@ -366,7 +366,7 @@ class Game:
                     elif game_playlist_id == GAME_PLAYLIST_RANKED_DOUBLE:
                         game_playlist = 'ranked_double'
                     elif game_playlist_id == GAME_PLAYLIST_RANKED_STANDARD:
-                        game_playlist = 'standard'
+                        game_playlist = 'ranked_standard'
                     elif game_playlist_id == GAME_PLAYLIST_RANKED_SNOWDAY:
                         game_playlist = 'ranked_snowday'
                     elif game_playlist_id == GAME_PLAYLIST_TOURNAMENT:
