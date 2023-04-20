@@ -7,8 +7,8 @@ with open('README.md', 'r') as fh:
 
 setup(
     name='rockalyzer',
-    version='0.0.2',
-    description='Rocket League Analyzer',
+    version='0.0.3',
+    description='Rocket League Replay Analyzer',
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/eliastheis/rockalyzer',
