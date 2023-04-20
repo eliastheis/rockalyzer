@@ -30,6 +30,7 @@ class Game:
         self.ball_id = None
         self.seconds_remaining = 300
         self.frame_index = 0
+        self.game_playlist = None
 
         # render stuff
         if self.b_render:
@@ -348,7 +349,36 @@ class Game:
                     self.actors[actor_id]['region'] = actor['attribute']['String']
 
                 case Action.ProjectX_GRI_X_ReplicatedGamePlaylist:
-                    self.actors[actor_id]['game_playlist'] = actor['attribute']['Int']
+
+                    game_playlist_id = actor['attribute']['Int']
+                    game_playlist = 'unknown'
+
+                    if game_playlist_id == GAME_PLAYLIST_CASUAL_DUEL:
+                        game_playlist = 'casual_duel'
+                    elif game_playlist_id == GAME_PLAYLIST_CASUAL_DOUBLE:
+                        game_playlist = 'casual_double'
+                    elif game_playlist_id == GAME_PLAYLIST_CASUAL_STANDARD:
+                        game_playlist = 'casual_standard'
+                    elif game_playlist_id == GAME_PLAYLIST_CASUAL_CHAOS:
+                        game_playlist = 'casual_chaos'
+                    elif game_playlist_id == GAME_PLAYLIST_RANKED_DUEL:
+                        game_playlist = 'ranked_duel'
+                    elif game_playlist_id == GAME_PLAYLIST_RANKED_DOUBLE:
+                        game_playlist = 'ranked_double'
+                    elif game_playlist_id == GAME_PLAYLIST_RANKED_STANDARD:
+                        game_playlist = 'standard'
+                    elif game_playlist_id == GAME_PLAYLIST_RANKED_SNOWDAY:
+                        game_playlist = 'ranked_snowday'
+                    elif game_playlist_id == GAME_PLAYLIST_TOURNAMENT:
+                        game_playlist = 'tournament'
+                    else:
+                        game_playlist = f'unknown_{game_playlist_id}'
+                    
+                    if self.game_playlist is not None and self.game_playlist != game_playlist:
+                        print(WARNING, 'Game playlist changed from', self.game_playlist, 'to', game_playlist, ENDC)
+                        exit()
+                    else:
+                        self.game_playlist = game_playlist
                 
                 case Action.TAGame_Team_TA_GameEvent:
                     other_actor_id = actor['attribute']['ActiveActor']['actor']
@@ -1183,6 +1213,7 @@ class Game:
         stats['replay_id'] = properties['Id']
         stats['map_name'] = properties['MapName']
         stats['num_frames'] = properties['NumFrames']
+        stats['game_playlist'] = self.game_playlist if self.game_playlist is not None else 'unknown'
         
         # players
         stats['players'] = []
