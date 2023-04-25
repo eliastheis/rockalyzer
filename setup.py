@@ -14,7 +14,7 @@ setup(
     url='https://github.com/eliastheis/rockalyzer',
     author='Elias Theis',
     author_email='mail@eliastheis.de',
-    py_modules=['rockalyzer', 'Game', 'Action', 'console_colors', 'constants'],
+    py_modules=['rockalyzer', 'Game', 'RLObject', 'console_colors', 'constants'],
     package_dir={'': 'src'},
     install_requires=[
         'numpy',
