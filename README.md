@@ -1,7 +1,8 @@
 # Rocket League Boxcars-Replay Analyzer
 
 [![Version](https://img.shields.io/pypi/v/rockalyzer)](https://pypi.org/project/rockalyzer/#history)
-[![Downloads](https://static.pepy.tech/personalized-badge/rockalyzer?period=total&units=international_system&left_color=black&right_color=blue&left_text=Downloads)](https://pepy.tech/project/rockalyzer)
+[![Downloads](https://static.pepy.tech/personalized-badge/rockalyzer?period=total&units=international_system&left_color=black&right_color=blue&left_text=Total+Downloads)](https://pepy.tech/project/rockalyzer)
+[![Downloads](https://static.pepy.tech/personalized-badge/rockalyzer?period=week&units=international_system&left_color=black&right_color=blue&left_text=Downloads/Week)](https://pepy.tech/project/rockalyzer)
 
 # Features
 - Replay and analyze Rocket League [Boxcars](https://github.com/nickbabcock/boxcars) replays (you can use [rrrocket](https://github.com/nickbabcock/rrrocket) or [boxcars-py](https://github.com/SaltieRL/boxcars-py) to parse a `.replay`-file into a useable `.json`-file)
