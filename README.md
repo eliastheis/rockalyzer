@@ -51,6 +51,6 @@ If you set `render=True` when creating the `Replayer`-object, you get a simple (
 
 ## Build and upload package to PyPi
 ```python
-python ./setup bdist_wheel sdist
+python ./setup.py bdist_wheel sdist
 python -m twine upload dist/*
 ```
