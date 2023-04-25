@@ -103,10 +103,6 @@ class Game:
         # check for events
         self.check_for_events()
 
-        #if frame_index == 4900: # (first goal)
-        #    self.dump_actors_into_json()
-        #    exit()
-
 
     def delete_actors(self, actors):
         for actor in actors:

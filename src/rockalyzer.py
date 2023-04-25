@@ -25,8 +25,11 @@ class Replayer:
             raise ValueError(f'File "{self.file_name}" is not a json file')
         
         # load json content
-        with open(self.file_name, mode='r', encoding='utf-8') as f:
-            self.json_content = json_load(f)
+        try:
+            with open(self.file_name, mode='r', encoding='utf-8') as f:
+                self.json_content = json_load(f)
+        except Exception as e:
+            raise ValueError(f'File "{self.file_name}" is not a valid json file') from e
         self.object_lookup = self.json_content['objects']
         self.name_lookup = self.json_content['names']
         self.__check_json_content()
