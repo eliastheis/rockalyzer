@@ -38,6 +38,9 @@ from rockalyzer import Replayer
 # load replay as JSON file and set render mode
 replayer = Replayer('path/to/replay.json', render=True)
 
+# print header infos
+replayer.print_header_info()
+
 # replay file
 replayer.replay()
 

@@ -1,9 +1,6 @@
 from json import load as json_load
-from pprint import pprint
-from time import perf_counter
-from matplotlib import pyplot as plt
-import os
-import gc
+from os.path import isfile as os_isfile
+from gc import collect as gc_collect
 
 from console_colors import *
 from constants import *
@@ -14,40 +11,55 @@ from Action import Action
 class Replayer:
 
     def __init__(self, file_name, render=True):
+        """Create a new Replayer object."""
 
         self.file_name = file_name
         self.render = render
-        #print(HEADER + f'[+] Start Replaying "{self.file_name}"' + ENDC)
 
+        # check if file exists
+        if not os_isfile(self.file_name):
+            raise FileNotFoundError(f'File "{self.file_name}" does not exist')
+        
+        # check if file is json
+        if not self.file_name.lower().endswith('.json'):
+            raise ValueError(f'File "{self.file_name}" is not a json file')
+        
         # load json content
         with open(self.file_name, mode='r', encoding='utf-8') as f:
             self.json_content = json_load(f)
         self.object_lookup = self.json_content['objects']
         self.name_lookup = self.json_content['names']
+        self.__check_json_content()
 
-        # prepare game object
+        # create game object
         self.game = Game(self.json_content, self.render)
-
-        # print simple header
-        #self.print_header_info()
 
         # load actions
         Action.set_values(self.json_content['objects'])
 
 
-    def print_header_info(self):
+    def __check_json_content(self):
+        """Check if all keys are present in json file."""
+        keys = ['header_size', 'header_crc', 'major_version', 'minor_version',
+                'net_version', 'game_type', 'properties', 'content_size', 'content_crc',
+                'network_frames', 'levels', 'keyframes', 'tick_marks', 'packages',
+                'objects', 'names', 'class_indices', 'net_cache']
+        for key in keys:
+            if key not in self.json_content:
+                raise ValueError(f'Key "{key}" not found in json file')
+        
 
+    def print_header_info(self):
+        """Print header info of json file."""
         prop = self.json_content['properties']
         replay_name = None if 'ReplayName' not in prop else prop['ReplayName']
         date = prop['Date']
         team_size = prop['TeamSize']
         fps = prop['RecordFPS']
 
-
         # GENERAL STATS
         print(HEADER + f'\n=== {replay_name} ===' + ENDC)
         print(OKGREEN + f' {team_size}v{team_size} on {date} ({len(self.json_content["network_frames"]["frames"])} frames)' + ENDC)
-
 
         # PLAYER STATS
         print(HEADER + '\n=== Players ===' + ENDC)
@@ -79,7 +91,6 @@ class Replayer:
             print(f' BLUE\t\t"{player["name"]}"\t{player["score"]}\t{player["goals"]}\t{player["assists"]}\t{player["saves"]}\t{player["shots"]}')
         print(ENDC, end='')
 
-
         # EVENTS
         print(HEADER + '\n=== Events ===' + ENDC)
         for tick_mark in self.json_content['tick_marks']:
@@ -98,9 +109,7 @@ class Replayer:
 
 
     def replay(self):
-
-        start_time = perf_counter()
-
+        """Replay the game."""
         frames = self.json_content['network_frames']['frames']
         for i, frame in enumerate(frames):
 
@@ -111,41 +120,16 @@ class Replayer:
             if self.render:
                 self.game.render()
 
-        diff = perf_counter() - start_time
-        #print(HEADER + f'\n[+] Finished Replaying "{self.file_name}" in {diff:.3f} seconds' + ENDC)
-
 
     def get_stats(self):
+        """Return stats of the game."""
         return self.game.get_stats(self.json_content['properties'])
 
 
     def dispose(self):
-        # delete all objects
+        """Dispose the replayer object."""
         del self.game
         del self.json_content
         del self.object_lookup
         del self.name_lookup
-        gc.collect()
-
-
-def file_generator(folder):
-    for entry in os.scandir(folder):
-        if entry.is_file():
-            yield entry.path
-
-
-if __name__ == '__main__':
-
-    # iterate over all files in folder
-    for i, file in enumerate(file_generator('RocketLeagueReplays/json')):
-
-        print(HEADER, i, ENDC)
-        replayer = Replayer(file, render=False)
-        replayer.replay()
-        stats = replayer.get_stats()
-        replayer.dispose()
-
-        # delete all objects
-        del replayer
-        del stats
-        gc.collect()
+        gc_collect()
