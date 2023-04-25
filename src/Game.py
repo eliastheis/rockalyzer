@@ -6,7 +6,7 @@ import math
 
 from console_colors import *
 from constants import *
-from Action import Action
+from RLObject import RLObject
 
 
 class Game:
@@ -150,102 +150,102 @@ class Game:
 
             match actor['object_id']:
 
-                case Action.Engine_Actor_RemoteRole:
+                case RLObject.Engine_Actor_RemoteRole:
                     self.actors[actor_id]['remote_role'] = actor['attribute']['Enum']
                 
-                case Action.Engine_Actor_DrawScale:
+                case RLObject.Engine_Actor_DrawScale:
                     self.actors[actor_id]['draw_scale'] = actor['attribute']['Float']
 
-                case Action.TAGame_CarComponent_TA_Vehicle:
+                case RLObject.TAGame_CarComponent_TA_Vehicle:
                     self.actors[actor_id]['parent_ids'].append(actor['attribute']['ActiveActor']['actor'])
                     
-                case Action.TAGame_CarComponent_TA_ReplicatedActive:
+                case RLObject.TAGame_CarComponent_TA_ReplicatedActive:
                     self.actors[actor_id]['active'] = actor['attribute']['Byte']
 
-                case Action.TAGame_CarComponent_Boost_TA_ReplicatedBoostAmount:
+                case RLObject.TAGame_CarComponent_Boost_TA_ReplicatedBoostAmount:
                     self.actors[actor_id]['boost'] = actor['attribute']['Byte']
                 
-                case Action.TAGame_GameEvent_TA_ReplicatedRoundCountDownNumber:
+                case RLObject.TAGame_GameEvent_TA_ReplicatedRoundCountDownNumber:
                     self.actors[actor_id]['round_countdown'] = actor['attribute']['Int']
                 
-                case Action.TAGame_GameEvent_TA_ReplicatedGameStateTimeRemaining:
+                case RLObject.TAGame_GameEvent_TA_ReplicatedGameStateTimeRemaining:
                     self.actors[actor_id]['time_remaining'] = actor['attribute']['Int']
                 
-                case Action.TAGame_GameEvent_TA_ReplicatedStateName:
+                case RLObject.TAGame_GameEvent_TA_ReplicatedStateName:
                     self.actors[actor_id]['stateName'] = actor['attribute']['Int']
                 
-                case Action.TAGame_GameEvent_TA_BotSkill:
+                case RLObject.TAGame_GameEvent_TA_BotSkill:
                     self.actors[actor_id]['bot_skill'] = actor['attribute']['Int']
                 
-                case Action.TAGame_GameEvent_TA_bHasLeaveMatchPenalty:
+                case RLObject.TAGame_GameEvent_TA_bHasLeaveMatchPenalty:
                     self.actors[actor_id]['has_leave_match_penalty'] = actor['attribute']['Boolean']
                 
-                case Action.TAGame_GameEvent_Team_TA_MaxTeamSize:
+                case RLObject.TAGame_GameEvent_Team_TA_MaxTeamSize:
                     self.actors[actor_id]['max_team_size'] = actor['attribute']['Int']
                 
-                case Action.TAGame_GameEvent_Soccar_TA_RoundNum:
+                case RLObject.TAGame_GameEvent_Soccar_TA_RoundNum:
                     self.actors[actor_id]['current_round'] = actor['attribute']['Int']
                 
-                case Action.TAGame_GameEvent_Soccar_TA_bBallHasBeenHit:
+                case RLObject.TAGame_GameEvent_Soccar_TA_bBallHasBeenHit:
                     # this event is not triggered when the ball is hit, but when the ball is hit at kickoff
                     # and at some random times
                     self.actors[actor_id]['ball_has_been_hit'] = actor['attribute']['Boolean']
                 
-                case Action.TAGame_GameEvent_Soccar_TA_SecondsRemaining:
+                case RLObject.TAGame_GameEvent_Soccar_TA_SecondsRemaining:
                     self.seconds_remaining = actor['attribute']['Int']
                     self.actors[actor_id]['seconds_remaining'] = actor['attribute']['Int']
                 
-                case Action.Engine_Pawn_PlayerReplicationInfo:
+                case RLObject.Engine_Pawn_PlayerReplicationInfo:
                     self.actors[actor_id]['parent_ids'].append(actor['attribute']['ActiveActor']['actor'])
                 
-                case Action.TAGame_RBActor_TA_ReplicatedRBState:
+                case RLObject.TAGame_RBActor_TA_ReplicatedRBState:
                     # if the new linear_velocity is None then we do not update the linear_velocity
                     if actor['attribute']['RigidBody']['linear_velocity'] is None:
                         del actor['attribute']['RigidBody']['linear_velocity']
                     self.actors[actor_id].update(actor['attribute']['RigidBody'])
 
-                case Action.TAGame_Vehicle_TA_ReplicatedSteer:
+                case RLObject.TAGame_Vehicle_TA_ReplicatedSteer:
                     self.actors[actor_id]['steer'] = actor['attribute']['Byte']
                 
-                case Action.TAGame_Vehicle_TA_ReplicatedThrottle:
+                case RLObject.TAGame_Vehicle_TA_ReplicatedThrottle:
                     self.actors[actor_id]['throttle'] = actor['attribute']['Byte']
                 
-                case Action.TAGame_Vehicle_TA_bReplicatedHandbrake:
+                case RLObject.TAGame_Vehicle_TA_bReplicatedHandbrake:
                     self.actors[actor_id]['handbrake'] = actor['attribute']['Boolean']
                 
-                case Action.TAGame_Vehicle_TA_bDriving:
+                case RLObject.TAGame_Vehicle_TA_bDriving:
                     self.actors[actor_id]['driving'] = actor['attribute']['Boolean']
                 
-                case Action.TAGame_Car_TA_RumblePickups:
+                case RLObject.TAGame_Car_TA_RumblePickups:
                     # IGNORE Rumble stuff
                     pass
             
-                case Action.TAGame_Car_TA_TeamPaint:
+                case RLObject.TAGame_Car_TA_TeamPaint:
                     self.actors[actor_id]['team_paint'] = actor['attribute']['TeamPaint']
                     self.actors[actor_id]['team'] = actor['attribute']['TeamPaint']['team']
                 
-                case Action.TAGame_CameraSettingsActor_TA_CameraYaw:
+                case RLObject.TAGame_CameraSettingsActor_TA_CameraYaw:
                     self.actors[actor_id]['camera_yaw'] = actor['attribute']['Byte']
                 
-                case Action.TAGame_CameraSettingsActor_TA_CameraPitch:
+                case RLObject.TAGame_CameraSettingsActor_TA_CameraPitch:
                     self.actors[actor_id]['camera_pitch'] = actor['attribute']['Byte']
                 
-                case Action.TAGame_CameraSettingsActor_TA_bMouseCameraToggleEnabled:
+                case RLObject.TAGame_CameraSettingsActor_TA_bMouseCameraToggleEnabled:
                     self.actors[actor_id]['camera_toggle'] = actor['attribute']['Boolean']
                 
-                case Action.TAGame_CameraSettingsActor_TA_bUsingSwivel:
+                case RLObject.TAGame_CameraSettingsActor_TA_bUsingSwivel:
                     self.actors[actor_id]['using_swivel'] = actor['attribute']['Boolean']
                 
-                case Action.TAGame_CameraSettingsActor_TA_bUsingBehindView:
+                case RLObject.TAGame_CameraSettingsActor_TA_bUsingBehindView:
                     self.actors[actor_id]['using_behind_view'] = actor['attribute']['Boolean']
                 
-                case Action.TAGame_CameraSettingsActor_TA_ProfileSettings:
+                case RLObject.TAGame_CameraSettingsActor_TA_ProfileSettings:
                     self.actors[actor_id]['camera_settings'] = actor['attribute']['CamSettings']
                 
-                case Action.TAGame_CameraSettingsActor_TA_bUsingSecondaryCamera:
+                case RLObject.TAGame_CameraSettingsActor_TA_bUsingSecondaryCamera:
                     self.actors[actor_id]['using_ball_cam'] = actor['attribute']['Boolean']
                 
-                case Action.Engine_PlayerReplicationInfo_UniqueId:
+                case RLObject.Engine_PlayerReplicationInfo_UniqueId:
                     self.actors[actor_id]['unique_id'] = actor['attribute']['UniqueId']
                     # check for MMR in debug_info
                     remote_id = self.actors[actor_id]['unique_id']['remote_id']
@@ -268,68 +268,68 @@ class Game:
                         print(WARNING, 'Unknown remote_id type ', ENDC,  str(remote_id))
                         exit()
                 
-                case Action.Engine_PlayerReplicationInfo_Team:
+                case RLObject.Engine_PlayerReplicationInfo_Team:
                     self.actors[actor_id]['team'] = actor['attribute']['ActiveActor']['actor']
                 
-                case Action.Engine_PlayerReplicationInfo_PlayerID:
+                case RLObject.Engine_PlayerReplicationInfo_PlayerID:
                     self.actors[actor_id]['player_id'] = actor['attribute']['Int']
                 
-                case Action.Engine_PlayerReplicationInfo_PlayerName:
+                case RLObject.Engine_PlayerReplicationInfo_PlayerName:
                     self.actors[actor_id]['player_name'] = actor['attribute']['String']
                 
-                case Action.Engine_PlayerReplicationInfo_Ping:
+                case RLObject.Engine_PlayerReplicationInfo_Ping:
                     self.actors[actor_id]['ping'] = actor['attribute']['Byte']
                 
-                case Action.TAGame_PRI_TA_CurrentVoiceRoom:
+                case RLObject.TAGame_PRI_TA_CurrentVoiceRoom:
                     self.actors[actor_id]['current_voice_room'] = actor['attribute']['String']
                 
-                case Action.TAGame_PRI_TA_SpectatorShortcut:
+                case RLObject.TAGame_PRI_TA_SpectatorShortcut:
                     self.actors[actor_id]['spectator_shortcut'] = actor['attribute']['Int']
                 
-                case Action.TAGame_PRI_TA_SteeringSensitivity:
+                case RLObject.TAGame_PRI_TA_SteeringSensitivity:
                     self.actors[actor_id]['steering_sensitivity'] = actor['attribute']['Float']
                 
-                case Action.TAGame_PRI_TA_Title:
+                case RLObject.TAGame_PRI_TA_Title:
                     self.actors[actor_id]['title'] = actor['attribute']['Int']
                 
-                case Action.TAGame_PRI_TA_PartyLeader:
+                case RLObject.TAGame_PRI_TA_PartyLeader:
                     self.actors[actor_id]['party_leader_id'] = actor['attribute']['PartyLeader']
                
-                case Action.TAGame_PRI_TA_ClientLoadoutsOnline:
+                case RLObject.TAGame_PRI_TA_ClientLoadoutsOnline:
                     self.actors[actor_id]['loadout_online'] = actor['attribute']['LoadoutsOnline']
                 
-                case Action.TAGame_PRI_TA_ClientLoadouts:
+                case RLObject.TAGame_PRI_TA_ClientLoadouts:
                     self.actors[actor_id]['team_loadout'] = actor['attribute']['TeamLoadout']
                 
-                case Action.TAGame_PRI_TA_ReplicatedGameEvent:
+                case RLObject.TAGame_PRI_TA_ReplicatedGameEvent:
                     other_actor_id = actor['attribute']['ActiveActor']['actor']
                     if other_actor_id != -1:
                         if 'frames_with_event' not in self.actors[other_actor_id]:
                             self.actors[other_actor_id]['frames_with_event'] = []
                         self.actors[other_actor_id]['frames_with_event'].append(self.frame_index)
                 
-                case Action.TAGame_PRI_TA_PlayerHistoryValid:
+                case RLObject.TAGame_PRI_TA_PlayerHistoryValid:
                     self.actors[actor_id]['player_history_valid'] = actor['attribute']['Boolean']
                 
-                case Action.TAGame_PRI_TA_MatchScore:
+                case RLObject.TAGame_PRI_TA_MatchScore:
                     self.actors[actor_id]['score'] = actor['attribute']['Int']
                 
-                case Action.TAGame_Ball_TA_HitTeamNum:
+                case RLObject.TAGame_Ball_TA_HitTeamNum:
                     self.actors[actor_id]['hit_team_num'] = actor['attribute']['Byte']
                 
-                case Action.TAGame_CarComponent_Dodge_TA_DodgeTorque:
+                case RLObject.TAGame_CarComponent_Dodge_TA_DodgeTorque:
                     self.actors[actor_id]['location'] = actor['attribute']['Location']
                 
-                case Action.Engine_GameReplicationInfo_ServerName:
+                case RLObject.Engine_GameReplicationInfo_ServerName:
                     self.actors[actor_id]['server'] = actor['attribute']['String']
                 
-                case Action.ProjectX_GRI_X_MatchGuid:
+                case RLObject.ProjectX_GRI_X_MatchGuid:
                     self.actors[actor_id]['match_guid'] = actor['attribute']['String']
                 
-                case Action.ProjectX_GRI_X_bGameStarted:
+                case RLObject.ProjectX_GRI_X_bGameStarted:
                     self.actors[actor_id]['game_started'] = actor['attribute']['Boolean']
                 
-                case Action.ProjectX_GRI_X_GameServerID:
+                case RLObject.ProjectX_GRI_X_GameServerID:
                     if 'QWord' in actor['attribute']:
                         self.actors[actor_id]['server_id'] = actor['attribute']['QWord']
                     elif 'String' in actor['attribute']:
@@ -338,13 +338,13 @@ class Game:
                         print(WARNING, 'Unknown GameServerID type (should be String or QWord)', ENDC, str(actor['attribute']))
                         exit()
 
-                case Action.ProjectX_GRI_X_Reservations:
+                case RLObject.ProjectX_GRI_X_Reservations:
                     self.actors[actor_id]['reservation'] = actor['attribute']['Reservation']
                 
-                case Action.ProjectX_GRI_X_ReplicatedServerRegion:
+                case RLObject.ProjectX_GRI_X_ReplicatedServerRegion:
                     self.actors[actor_id]['region'] = actor['attribute']['String']
 
-                case Action.ProjectX_GRI_X_ReplicatedGamePlaylist:
+                case RLObject.ProjectX_GRI_X_ReplicatedGamePlaylist:
 
                     game_playlist_id = actor['attribute']['Int']
                     game_playlist = 'unknown'
@@ -376,13 +376,13 @@ class Game:
                     else:
                         self.game_playlist = game_playlist
                 
-                case Action.TAGame_Team_TA_GameEvent:
+                case RLObject.TAGame_Team_TA_GameEvent:
                     other_actor_id = actor['attribute']['ActiveActor']['actor']
                     if 'frames_with_event' not in self.actors[other_actor_id]:
                         self.actors[other_actor_id]['frames_with_event'] = []
                     self.actors[other_actor_id]['frames_with_event'].append(self.frame_index)
                 
-                case Action.TAGame_VehiclePickup_TA_NewReplicatedPickupData:
+                case RLObject.TAGame_VehiclePickup_TA_NewReplicatedPickupData:
                     instigator_id = actor['attribute']['PickupNew']['instigator']
                     if instigator_id is not None: # for whatever reason, instigator_id can be None
                         if instigator_id != -1: # for whatever reason, instigator_id can be -1
@@ -393,104 +393,104 @@ class Game:
                             data = {'picked_up': picked_up, 'frame_index': self.time, 'boost_actor_id': boost_actor_id}
                             self.actors[instigator_id]['boost_pickups'].append(data)
 
-                case Action.TAGame_PRI_TA_PersistentCamera:
+                case RLObject.TAGame_PRI_TA_PersistentCamera:
                     self.actors[actor_id]['parent_ids'].append(actor['attribute']['ActiveActor']['actor'])
                 
-                case Action.TAGame_CameraSettingsActor_TA_PRI:
+                case RLObject.TAGame_CameraSettingsActor_TA_PRI:
                     self.actors[actor_id]['parent_ids'].append(actor['attribute']['ActiveActor']['actor'])
                 
-                case Action.TAGame_Ball_TA_GameEvent:
+                case RLObject.TAGame_Ball_TA_GameEvent:
                     self.actors[actor_id]['parent_ids'].append(actor['attribute']['ActiveActor']['actor'])
                 
-                case Action.TAGame_PRI_TA_MatchGoals:
+                case RLObject.TAGame_PRI_TA_MatchGoals:
                     event_goal = True
                     self.actors[actor_id]['match_goals'] = actor['attribute']['Int']
                 
-                case Action.TAGame_PRI_TA_MatchAssists:
+                case RLObject.TAGame_PRI_TA_MatchAssists:
                     self.actors[actor_id]['match_assists'] = actor['attribute']['Int']
                 
-                case Action.TAGame_PRI_TA_MatchSaves:
+                case RLObject.TAGame_PRI_TA_MatchSaves:
                     self.actors[actor_id]['match_saves'] = actor['attribute']['Int']
                 
-                case Action.TAGame_PRI_TA_MatchShots:
+                case RLObject.TAGame_PRI_TA_MatchShots:
                     self.actors[actor_id]['match_shots'] = actor['attribute']['Int']
                 
-                case Action.Engine_PlayerReplicationInfo_Score:
+                case RLObject.Engine_PlayerReplicationInfo_Score:
                     self.actors[actor_id]['score'] = actor['attribute']['Int']
                 
-                case Action.Engine_TeamInfo_Score:
+                case RLObject.Engine_TeamInfo_Score:
                     self.actors[actor_id]['score'] = actor['attribute']['Int']
                 
-                case Action.TAGame_GameEvent_TA_bCanVoteToForfeit:
+                case RLObject.TAGame_GameEvent_TA_bCanVoteToForfeit:
                     self.actors[actor_id]['can_vote_to_forfeit'] = actor['attribute']['Boolean']
                 
-                case Action.TAGame_Car_TA_ReplicatedDemolishGoalExplosion:
+                case RLObject.TAGame_Car_TA_ReplicatedDemolishGoalExplosion:
                     self.actors[actor_id]['demolish_fx'] = actor['attribute']['DemolishFx']
                 
-                case Action.TAGame_GameEvent_Soccar_TA_ReplicatedScoredOnTeam:
+                case RLObject.TAGame_GameEvent_Soccar_TA_ReplicatedScoredOnTeam:
                     self.actors[actor_id]['scored_on_team'] = actor['attribute']['Byte']
                 
-                case Action.Engine_Actor_bCollideActors:
+                case RLObject.Engine_Actor_bCollideActors:
                     self.actors[actor_id]['collide_actors'] = actor['attribute']['Boolean']
                 
-                case Action.Engine_Actor_bBlockActors:
+                case RLObject.Engine_Actor_bBlockActors:
                     self.actors[actor_id]['block_actors'] = actor['attribute']['Boolean']
                 
-                case Action.TAGame_Ball_TA_ReplicatedExplosionDataExtended:
+                case RLObject.TAGame_Ball_TA_ReplicatedExplosionDataExtended:
                     self.actors[actor_id]['extended_explosion'] = actor['attribute']['ExtendedExplosion']
                 
-                case Action.Engine_Actor_bHidden:
+                case RLObject.Engine_Actor_bHidden:
                     if actor['attribute']['Boolean'] != True:
                         print(WARNING + 'Actor ' + str(actor_id) + ' is not hidden' + ENDC)
                         exit()
                     self.actors[actor_id]['hidden_since_frame'] = self.frame_index
                 
-                case Action.TAGame_PRI_TA_bReady:
+                case RLObject.TAGame_PRI_TA_bReady:
                     self.actors[actor_id]['ready'] = actor['attribute']['Boolean']
 
-                case Action.TAGame_PRI_TA_ReplicatedWorstNetQualityBeyondLatency:
+                case RLObject.TAGame_PRI_TA_ReplicatedWorstNetQualityBeyondLatency:
                     self.actors[actor_id]['worst_net_quality_beyond_latency'] = actor['attribute']['Byte']
                 
-                case Action.TAGame_CarComponent_FlipCar_TA_FlipCarTime:
+                case RLObject.TAGame_CarComponent_FlipCar_TA_FlipCarTime:
                     self.actors[actor_id]['flip_car_time'] = actor['attribute']['Float']
                 
-                case Action.TAGame_GameEvent_Soccar_TA_MaxScore:
+                case RLObject.TAGame_GameEvent_Soccar_TA_MaxScore:
                     self.actors[actor_id]['max_score'] = actor['attribute']['Int']
                 
-                case Action.TAGame_Team_TA_ClubColors:
+                case RLObject.TAGame_Team_TA_ClubColors:
                     self.actors[actor_id]['club_colors'] = actor['attribute']['ClubColors']
 
-                case Action.TAGame_Car_TA_ClubColors:
+                case RLObject.TAGame_Car_TA_ClubColors:
                     self.actors[actor_id]['club_colors'] = actor['attribute']['ClubColors']
                 
-                case Action.ProjectX_GRI_X_ReplicatedGameMutatorIndex:
+                case RLObject.ProjectX_GRI_X_ReplicatedGameMutatorIndex:
                     self.actors[actor_id]['game_mutator_index'] = actor['attribute']['Int']
                 
-                case Action.TAGame_CarComponent_FlipCar_TA_bFlipRight:
+                case RLObject.TAGame_CarComponent_FlipCar_TA_bFlipRight:
                     self.actors[actor_id]['flip_right'] = actor['attribute']['Boolean']
                 
-                case Action.TAGame_PRI_TA_bIsDistracted:
+                case RLObject.TAGame_PRI_TA_bIsDistracted:
                     self.actors[actor_id]['is_distracted'] = actor['attribute']['Boolean']
                 
-                case Action.TAGame_Team_TA_Difficulty:
+                case RLObject.TAGame_Team_TA_Difficulty:
                     self.actors[actor_id]['difficulty'] = actor['attribute']['Int']
                 
-                case Action.TAGame_Team_TA_CustomTeamName:
+                case RLObject.TAGame_Team_TA_CustomTeamName:
                     self.actors[actor_id]['custom_team_name'] = actor['attribute']['String']
                 
-                case Action.ProjectX_GRI_X_MatchGUID:
+                case RLObject.ProjectX_GRI_X_MatchGUID:
                     self.actors[actor_id]['match_guid'] = actor['attribute']['String']
                 
-                case Action.TAGame_GameEvent_Soccar_TA_SeriesLength:
+                case RLObject.TAGame_GameEvent_Soccar_TA_SeriesLength:
                     self.actors[actor_id]['series_length'] = actor['attribute']['Int']
                 
-                case Action.TAGame_CarComponent_Dodge_TA_DodgeImpulse:
+                case RLObject.TAGame_CarComponent_Dodge_TA_DodgeImpulse:
                     self.actors[actor_id]['dodge_impulse_location'] = actor['attribute']['Location']
 
-                case Action.Engine_PlayerReplicationInfo_RemoteUserData:
+                case RLObject.Engine_PlayerReplicationInfo_RemoteUserData:
                     self.actors[actor_id]['remote_user_data'] = actor['attribute']['String']
                 
-                case Action.TAGame_GameEvent_Soccar_TA_bOverTime:
+                case RLObject.TAGame_GameEvent_Soccar_TA_bOverTime:
                     if actor['attribute']['Boolean']:
                         self.actors[actor_id]['over_time_at_frame'] = self.frame_index
                         if self.event_print:
@@ -499,176 +499,176 @@ class Game:
                         print(WARNING + 'Actor ' + str(actor_id) + ' is not in overtime' + ENDC)
                         exit()
                 
-                case Action.TAGame_GameEvent_Soccar_TA_bClubMatch:
+                case RLObject.TAGame_GameEvent_Soccar_TA_bClubMatch:
                     self.actors[actor_id]['club_match'] = actor['attribute']['Boolean']
                 
-                case Action.TAGame_Team_TA_ClubID:
+                case RLObject.TAGame_Team_TA_ClubID:
                     self.actors[actor_id]['club_id'] = actor['attribute']['Int64']
                 
-                case Action.Engine_PlayerReplicationInfo_bBot:
+                case RLObject.Engine_PlayerReplicationInfo_bBot:
                     self.actors[actor_id]['is_bot'] = actor['attribute']['Boolean']
                 
-                case Action.TAGame_PRI_TA_BotProductName:
+                case RLObject.TAGame_PRI_TA_BotProductName:
                     self.actors[actor_id]['bot_product_name'] = actor['attribute']['Int']
 
-                case Action.TAGame_PRI_TA_ClubID:
+                case RLObject.TAGame_PRI_TA_ClubID:
                     self.actors[actor_id]['club_id'] = actor['attribute']['Int64']
                 
-                case Action.TAGame_GameEvent_Team_TA_bForfeit:
+                case RLObject.TAGame_GameEvent_Team_TA_bForfeit:
                     if actor['attribute']['Boolean']:
                         self.actors[actor_id]['forfeit_at_frame'] = self.frame_index
                     else:
                         print(WARNING + 'Actor ' + str(actor_id) + ' did not forfeit' + ENDC)
                         exit()
                 
-                case Action.TAGame_PRI_TA_PlayerHistoryKey:
+                case RLObject.TAGame_PRI_TA_PlayerHistoryKey:
                     self.actors[actor_id]['player_history_key'] = actor['attribute']['PlayerHistoryKey']
                 
-                case Action.Engine_PlayerReplicationInfo_bTimedOut:
+                case RLObject.Engine_PlayerReplicationInfo_bTimedOut:
                     if actor['attribute']['Boolean']:
                         self.actors[actor_id]['timed_out_at_frame'] = self.frame_index
                     else:
                         print(WARNING + 'Actor ' + str(actor_id) + ' did not time out' + ENDC)
                         exit()
                 
-                case Action.Engine_ReplicatedActor_ORS_ReplicatedOwner:
+                case RLObject.Engine_ReplicatedActor_ORS_ReplicatedOwner:
                     if 'ActiveActor' not in actor['attribute']:
                         print(WARNING, 'Unknown Replicated Owner (should be ActiveActor)', ENDC, str(actor['attribute']))
                         exit()
                     else:
                         self.actors[actor_id]['parent_ids'].append(actor['attribute']['ActiveActor']['actor'])
                 
-                case Action.TAGame_MaxTimeWarningData_TA_EndGameWarningEpochTime:
+                case RLObject.TAGame_MaxTimeWarningData_TA_EndGameWarningEpochTime:
                     #print(WARNING + 'End game warning at frame ' + str(frame_index) + ENDC)
                     self.actors[actor_id]['end_game_warning_epoch_time'] = actor['attribute']['Int64']
                 
-                case Action.TAGame_MaxTimeWarningData_TA_EndGameEpochTime:
+                case RLObject.TAGame_MaxTimeWarningData_TA_EndGameEpochTime:
                     self.actors[actor_id]['end_game_epoch_time'] = actor['attribute']['Int64']
                 
-                case Action.TAGame_Ball_TA_ReplicatedWorldBounceScale:
+                case RLObject.TAGame_Ball_TA_ReplicatedWorldBounceScale:
                     self.actors[actor_id]['world_bounce_scale'] = actor['attribute']['Float']
                 
-                case Action.TAGame_PRI_TA_bIsInSplitScreen:
+                case RLObject.TAGame_PRI_TA_bIsInSplitScreen:
                     self.actors[actor_id]['is_in_split_screen'] = actor['attribute']['Boolean']
                 
-                case Action.TAGame_RBActor_TA_bReplayActor:
+                case RLObject.TAGame_RBActor_TA_bReplayActor:
                     self.actors[actor_id]['is_replay_actor'] = actor['attribute']['Boolean']
                 
-                case Action.TAGame_GameEvent_Soccar_TA_bUnlimitedTime:
+                case RLObject.TAGame_GameEvent_Soccar_TA_bUnlimitedTime:
                     if not actor['attribute']['Boolean']:
                         print(WARNING + 'Actor ' + str(actor_id) + ' is not in unlimited time' + ENDC)
                         exit()
                     self.actors[actor_id]['unlimited_time'] = actor['attribute']['Boolean']
                 
-                case Action.TAGame_CarComponent_Boost_TA_UnlimitedBoostRefCount:
+                case RLObject.TAGame_CarComponent_Boost_TA_UnlimitedBoostRefCount:
                     self.actors[actor_id]['unlimited_boost_ref_count'] = actor['attribute']['Int']
                 
-                case Action.TAGame_VehiclePickup_TA_bNoPickup:
+                case RLObject.TAGame_VehiclePickup_TA_bNoPickup:
                     self.actors[actor_id]['no_pickup'] = actor['attribute']['Boolean']
                 
-                case Action.TAGame_PRI_TA_PawnType:
+                case RLObject.TAGame_PRI_TA_PawnType:
                     self.actors[actor_id]['pawn_type'] = actor['attribute']['Byte']
 
-                case Action.TAGame_CarComponent_Boost_TA_RechargeDelay:
+                case RLObject.TAGame_CarComponent_Boost_TA_RechargeDelay:
                     self.actors[actor_id]['recharge_delay'] = actor['attribute']['Float']
 
-                case Action.TAGame_CarComponent_Boost_TA_RechargeRate:
+                case RLObject.TAGame_CarComponent_Boost_TA_RechargeRate:
                     self.actors[actor_id]['recharge_rate'] = actor['attribute']['Float']
 
-                case Action.TAGame_BreakOutActor_Platform_TA_DamageState:
+                case RLObject.TAGame_BreakOutActor_Platform_TA_DamageState:
                     self.actors[actor_id]['damage_state'] = actor['attribute']['DamageState']
                 
-                case Action.TAGame_Ball_Breakout_TA_LastTeamTouch:
+                case RLObject.TAGame_Ball_Breakout_TA_LastTeamTouch:
                     self.actors[actor_id]['last_team_touch'] = actor['attribute']['Byte']
 
-                case Action.TAGame_PRI_TA_MatchBreakoutDamage:
+                case RLObject.TAGame_PRI_TA_MatchBreakoutDamage:
                     self.actors[actor_id]['match_breakout_damage'] = actor['attribute']['Int']
 
-                case Action.TAGame_Ball_Breakout_TA_AppliedDamage:
+                case RLObject.TAGame_Ball_Breakout_TA_AppliedDamage:
                     self.actors[actor_id]['applied_damage'] = actor['attribute']['AppliedDamage']
                 
-                case Action.TAGame_Ball_Breakout_TA_DamageIndex:
+                case RLObject.TAGame_Ball_Breakout_TA_DamageIndex:
                     self.actors[actor_id]['damage_index'] = actor['attribute']['Int']
 
-                case Action.TAGame_PRI_TA_bUsingItems:
+                case RLObject.TAGame_PRI_TA_bUsingItems:
                     self.actors[actor_id]['using_items'] = actor['attribute']['Boolean']
 
-                case Action.TAGame_RumblePickups_TA_ConcurrentItemCount:
+                case RLObject.TAGame_RumblePickups_TA_ConcurrentItemCount:
                     self.actors[actor_id]['concurrent_item_count'] = actor['attribute']['Int']
                 
-                case Action.TAGame_RumblePickups_TA_PickupInfo:
+                case RLObject.TAGame_RumblePickups_TA_PickupInfo:
                     pickup_info = actor['attribute']['PickupInfo']
                     # IGNORE Rumble stuff
                 
-                case Action.TAGame_CarComponent_TA_ReplicatedActivityTime:
+                case RLObject.TAGame_CarComponent_TA_ReplicatedActivityTime:
                     # probably Rumble stuff
                     self.actors[actor_id]['replicated_activity_time'] = actor['attribute']['Float']
                 
-                case Action.TAGame_SpecialPickup_Targeted_TA_Targeted:
+                case RLObject.TAGame_SpecialPickup_Targeted_TA_Targeted:
                     # IGNORE Rumble stuff
                     pass
             
-                case Action.TAGame_SpecialPickup_BallFreeze_TA_RepOrigSpeed:
+                case RLObject.TAGame_SpecialPickup_BallFreeze_TA_RepOrigSpeed:
                     # IGNORE Rumble stuff
                     pass
 
-                case Action.TAGame_Car_TA_AddedCarForceMultiplier:
+                case RLObject.TAGame_Car_TA_AddedCarForceMultiplier:
                     # IGNORE Rumble stuff
                     pass
             
-                case Action.TAGame_Car_TA_AddedBallForceMultiplier:
+                case RLObject.TAGame_Car_TA_AddedBallForceMultiplier:
                     # IGNORE Rumble stuff
                     pass
             
-                case Action.TAGame_Car_TA_AddedBallForceMultiplier:
+                case RLObject.TAGame_Car_TA_AddedBallForceMultiplier:
                     # IGNORE Rumble stuff
                     pass
 
-                case Action.TAGame_Team_Soccar_TA_GameScore:
+                case RLObject.TAGame_Team_Soccar_TA_GameScore:
                     self.actors[actor_id]['game_score'] = actor['attribute']['Int']
 
-                case Action.TAGame_RBActor_TA_bIgnoreSyncing:
+                case RLObject.TAGame_RBActor_TA_bIgnoreSyncing:
                     self.actors[actor_id]['ignore_syncing'] = actor['attribute']['Boolean']
                 
-                case Action.TAGame_RBActor_TA_WeldedInfo:
+                case RLObject.TAGame_RBActor_TA_WeldedInfo:
                     # probably spikes?
                     self.actors[actor_id]['welded_info'] = actor['attribute']['Welded']
                 
-                case Action.TAGame_SpecialPickup_BallVelcro_TA_AttachTime:
+                case RLObject.TAGame_SpecialPickup_BallVelcro_TA_AttachTime:
                     # probably spikes?
                     self.actors[actor_id]['attach_time'] = actor['attribute']['Float']
                 
-                case Action.TAGame_SpecialPickup_BallVelcro_TA_bHit:
+                case RLObject.TAGame_SpecialPickup_BallVelcro_TA_bHit:
                     # probably spikes?
                     self.actors[actor_id]['hit'] = actor['attribute']['Boolean']
 
-                case Action.TAGame_SpecialPickup_BallVelcro_TA_BreakTime:
+                case RLObject.TAGame_SpecialPickup_BallVelcro_TA_BreakTime:
                     # probably spikes?
                     self.actors[actor_id]['break_time'] = actor['attribute']['Float']
 
-                case Action.TAGame_SpecialPickup_BallVelcro_TA_bBroken:
+                case RLObject.TAGame_SpecialPickup_BallVelcro_TA_bBroken:
                     # probably spikes?
                     self.actors[actor_id]['broken'] = actor['attribute']['Boolean']
                 
-                case Action.TAGame_Car_TA_ReplicatedDemolish_CustomFX:
+                case RLObject.TAGame_Car_TA_ReplicatedDemolish_CustomFX:
                     self.actors[actor_id]['demolish_custom_fx'] = actor['attribute']['DemolishFx']
                 
-                case Action.TAGame_Car_TA_ReplicatedDemolish:
+                case RLObject.TAGame_Car_TA_ReplicatedDemolish:
                     self.actors[actor_id]['demolish'] = actor['attribute']['Demolish']
 
-                case Action.TAGame_GameEvent_TA_MatchTypeClass:
+                case RLObject.TAGame_GameEvent_TA_MatchTypeClass:
                     # pretty weird event
                     pass
             
-                case Action.Engine_GameReplicationInfo_GameClass:
+                case RLObject.Engine_GameReplicationInfo_GameClass:
                     # pretty weird event
                     pass
             
-                case Action.TAGame_GameEvent_Soccar_TA_ReplicatedStatEvent:
+                case RLObject.TAGame_GameEvent_Soccar_TA_ReplicatedStatEvent:
                     # pretty weird event
                     pass
 
-                case Action.TAGame_GameEvent_Soccar_TA_SubRulesArchetype:
+                case RLObject.TAGame_GameEvent_Soccar_TA_SubRulesArchetype:
                     # pretty weird event
                     pass
             
@@ -955,12 +955,12 @@ class Game:
         player_car_pairs = []
 
         # get all actor_ids from objects with object_id 264
-        players = [actor_id for actor_id, actor in self.actors.items() if actor['object_id'] == Action.TAGame_Default__PRI_TA]
+        players = [actor_id for actor_id, actor in self.actors.items() if actor['object_id'] == RLObject.TAGame_Default__PRI_TA]
 
         for player in players:
             
             # get all children of the player (car)
-            car = [actor_id for actor_id, actor in self.actors.items() if player in actor['parent_ids'] and actor['object_id'] == Action.Archetypes_Car_Car_Default]
+            car = [actor_id for actor_id, actor in self.actors.items() if player in actor['parent_ids'] and actor['object_id'] == RLObject.Archetypes_Car_Car_Default]
             if len(car) == 0:
                 pass
             elif len(car) == 1:
@@ -976,11 +976,10 @@ class Game:
 
     def get_ball(self):
 
-        # get all actor_ids from objects with object_id 264
         ball_types = [
-            Action.Archetypes_Ball_Ball_Default,
-            Action.Archetypes_GameEvent_GameEvent_Basketball,
-            Action.Archetypes_GameEvent_GameEvent_Hockey,
+            RLObject.Archetypes_Ball_Ball_Default,
+            RLObject.Archetypes_GameEvent_GameEvent_Basketball,
+            RLObject.Archetypes_GameEvent_GameEvent_Hockey,
         ]
         ball = [actor_id for actor_id, actor in self.actors.items() if actor['object_id'] in ball_types]
 

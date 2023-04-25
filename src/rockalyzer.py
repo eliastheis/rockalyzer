@@ -5,7 +5,7 @@ from gc import collect as gc_collect
 from console_colors import *
 from constants import *
 from Game import Game
-from Action import Action
+from RLObject import RLObject
 
 
 class Replayer:
@@ -38,7 +38,7 @@ class Replayer:
         self.game = Game(self.json_content, self.render)
 
         # load actions
-        Action.set_values(self.json_content['objects'])
+        RLObject.set_values(self.json_content['objects'])
 
 
     def __check_json_content(self):
