@@ -1193,10 +1193,12 @@ class Game:
 #########
 
 
-    def get_stats(self, properties):
+    def get_stats(self):
 
         # prepare stats dict
         stats = {}
+
+        properties = self.properties
 
         # general stuff
         stats['datetime'] = properties['Date']

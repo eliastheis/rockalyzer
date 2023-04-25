@@ -42,10 +42,7 @@ replayer = Replayer('path/to/replay.json', render=True)
 replayer.print_header_info()
 
 # replay file
-replayer.replay()
-
-# get stats
-stats = replayer.get_stats()
+stats = replayer.replay()
 ```
 
 ### Simple render

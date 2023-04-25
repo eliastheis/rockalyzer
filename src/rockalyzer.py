@@ -122,11 +122,8 @@ class Replayer:
             # render game
             if self.render:
                 self.game.render()
-
-
-    def get_stats(self):
-        """Return stats of the game."""
-        return self.game.get_stats(self.json_content['properties'])
+        
+        return self.game.get_stats()
 
 
     def dispose(self):
