@@ -7,7 +7,7 @@ with open('README.md', 'r') as fh:
 
 setup(
     name='rockalyzer',
-    version='0.0.5',
+    version='0.1.0',
     description='Rocket League Boxcars-Replay Analyzer',
     long_description=long_description,
     long_description_content_type='text/markdown',
