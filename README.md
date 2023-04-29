@@ -1,4 +1,4 @@
-# Rocket League Boxcars-Replay Analyzer
+# Rockalyzer: Rocket League Boxcars-Replay Analyzer
 
 [![Version](https://img.shields.io/pypi/v/rockalyzer)](https://pypi.org/project/rockalyzer/#history)
 [![Downloads](https://static.pepy.tech/personalized-badge/rockalyzer?period=total&units=international_system&left_color=black&right_color=blue&left_text=Total+Downloads)](https://pepy.tech/project/rockalyzer)
